@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abubakar Portfolio | Contact</title>
+    <link rel="icon" href="../imgs/abu logo.png">
+    <link rel="stylesheet" href="contactpg.css">
+    <link rel="stylesheet" href="../chatbot.css">
+</head>
+<body>
+    
+    <!-- HEADER SECTIONNN -->
+    <header class="headercs">
+        <nav class="navcs">
+            <a href="../index.html" >Home</a>
+            <a href="../Projects_/projectspg.html">Projects</a>
+            <a href="../Journey/journeypg.html">Journey</a>
+            <a href="../Blogpg/blogpg.html">Blogs</a>
+            <a href="contactpg.html" style="background-color: rgb(205, 205, 205);padding: 8px 18px;border-radius: 10px;margin-top: -7px;">Contact</a>
+        </nav>
+        <div class="theme-toggle">
+            <img style="width: 25px;" src="../imgs/light-svgrepo-com.svg" alt="">
+        </div>
+        <details class="mobile-dropdown">
+            <summary>
+                <span class="mobile-menu-icon" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </summary>
+            <div class="mobile-dropdown-content">
+                <a href="../index.html">Home</a>
+                <a href="../Projects_/projectspg.html">Projects</a>
+                <a href="../Journey/journeypg.html">Journey</a>
+                <a href="../Blogpg/blogpg.html">Blogs</a>
+                <a href="contactpg.html">Contact</a>
+                <div class="mobile-theme-toggle">
+                    <img src="../imgs/light-svgrepo-com.svg" alt="">
+                </div>
+            </div>
+        </details>
+    </header>
+
+    <div class="midsection">
+        <img src="img/msgicon.png" alt="" width="70px">
+        <p style="font-size: 40px;">Contact</p>
+    </div>
+
+    <!-- Form Sectionnn -->
+     <form class="formcs" id="contactForm">
+        <p>Name</p>
+        <input type="text" placeholder="Enter your name" id="name" required>
+        <span class="error" id="nameError"></span>
+        <p>Email Address</p>
+        <input type="email" placeholder="youremail@awesome.com" id="email" required>
+        <span class="error" id="emailError"></span>
+        <p>Message</p>
+        <textarea placeholder="Enter your message" id="message" required></textarea>       
+        <span class="error" id="messageError"></span>
+        <button class="sendcs" id="sendBtn" type="submit">
+            <span  id="btnText">Send it my way</span>
+            <div class="loader" id="loader"></div>
+        </button>
+     </form>
+
+
+
+    <script src="script.js"></script>
+    <script src="../prscript.js"></script>
+    <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "63edc74e28f8464387bbfd6cffca7742"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
+</html>

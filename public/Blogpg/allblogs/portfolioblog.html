@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abubakar Portfolio | Blogs</title>
+    <link rel="stylesheet" href="blogs.css">
+    <link rel="stylesheet" href="../../chatbot.css">
+</head>
+<body>
+    <header class="blog-header">
+        <a class="back-button" href="../blogpg.html" aria-label="Back to blogs">Back</a>
+        <button class="theme-toggle" type="button" aria-label="Toggle theme">
+            <img src="../../imgs/light-svgrepo-com.svg" alt="">
+        </button>
+    </header>
+    <div class="blogbody">
+
+<p class="bg_name">Abubakar Portfolio</p>
+<p class="bg_date">Published on June 6, 2026</p>
+
+<p>
+    Abubakar Portfolio is a responsive full-stack portfolio website built to showcase my projects, skills, learning journey, blogs, and contact information. The website also includes an AI-powered chatbot, a backend-powered contact form, automated testing, and a CI/CD pipeline.
+</p>
+
+<p class="sidehead">
+    Tech Stack
+</p>
+
+<ul>
+    <li>HTML</li>
+    <li>CSS</li>
+    <li>JavaScript</li>
+    <li>Node.js</li>
+    <li>Express.js</li>
+    <li>Google Gemini API</li>
+    <li>Resend</li>
+    <li>Jest</li>
+    <li>Supertest</li>
+    <li>GitHub Actions</li>
+    <li>Cloudflare Pages</li>
+    <li>Render</li>
+</ul>
+
+<p class="sidehead">
+    Portfolio Chatbot
+</p>
+
+<p>
+    One of the main features of this portfolio is an AI-powered chatbot. Visitors can ask questions about my skills, education, projects, experience, and contact information in a natural way.
+</p>
+
+<p>
+    The frontend sends the user's message to my Express.js backend hosted on Render. The backend then sends the request to the Google Gemini API along with information about me. Gemini generates a response and sends it back to the user through the chatbot interface.
+</p>
+
+<p>
+    To prevent misuse, I implemented rate limiting using express-rate-limit. Each visitor can send up to 20 messages per hour.
+</p>
+
+<p>
+    The chatbot also includes a fallback system. If the AI service becomes unavailable or the rate limit is reached, it automatically switches to keyword-based responses. This allows visitors to continue getting answers without relying on the AI service.
+</p>
+
+<p>
+    Chat history is stored using sessionStorage, allowing conversations to remain available while navigating between pages. The rate-limit counter is stored separately using localStorage.
+</p>
+
+<p class="sidehead">
+    Contact Form
+</p>
+
+<p>
+    The contact form is powered by a Node.js and Express.js backend. When a visitor submits the form, the frontend sends a POST request to the backend API.
+</p>
+
+<p>
+    The backend validates the submitted data, applies rate limiting to prevent spam, and sends the message to my email address using Resend. A JSON response is then returned to indicate whether the request was successful or not.
+</p>
+
+<p class="sidehead">
+    Testing
+</p>
+
+<p>
+    Automated testing is implemented using Jest and Supertest.
+</p>
+
+<ul>
+    <li>Frontend tests verify important website functionality.</li>
+    <li>Backend tests verify API endpoints and contact form behavior.</li>
+    <li>Tests help identify issues before deployment.</li>
+</ul>
+
+<p class="sidehead">
+    CI/CD
+</p>
+
+<p>
+    GitHub Actions is used to automate testing and deployment.
+</p>
+
+<p>
+    Whenever code is pushed to GitHub, frontend and backend tests run automatically. The website is deployed only if all tests pass successfully.
+</p>
+
+<p>
+    I also configured a scheduled workflow that runs automated tests once every day to ensure the project remains stable over time.
+</p>
+
+<p class="sidehead">
+    Design & Planning
+</p>
+
+<p>
+    Before starting development, I planned the project structure and designed the user interface in Figma.
+</p>
+
+<ul>
+    <li>Designed both dark and light themes.</li>
+    <li>Used the Poppins font throughout the website.</li>
+    <li>Focused on a simple black, grey, and white color palette.</li>
+    <li>Created layouts before development to simplify implementation.</li>
+</ul>
+
+<p class="sidehead">
+    Pages
+</p>
+
+<ul>
+    <li><strong>Home Page:</strong> Introduction, skills, and technologies I use.</li>
+
+    <li><strong>Projects Page:</strong> Displays featured projects and smaller projects.</li>
+
+    <li><strong>Journey Page:</strong> Shows my learning journey and important milestones.</li>
+
+    <li><strong>Blog Page:</strong> Contains articles and updates related to my work and learning.</li>
+
+    <li><strong>Contact Page:</strong> Allows visitors to send messages directly to my email through the backend.</li>
+</ul>
+
+
+    </div>
+
+    <script src="blogpg.js"></script>
+    <script src="../../prscript.js"></script>
+</body>
+</html>

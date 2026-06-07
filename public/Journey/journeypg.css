@@ -1,0 +1,531 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+    color: black;
+    user-select: none;
+}
+body {
+  font-family:"Poppins", sans-serif;
+  font-size: 20px;
+  background-color: rgb(242, 242, 242);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+body.dark-mode {
+    background-color: rgb(132, 132, 132);
+}
+body.dark-mode * {
+    color: white;
+}
+img {
+    mix-blend-mode: multiply;
+    /* mix-blend-mode: normal; */
+}
+
+h1, h2, h3 {
+  font-weight: 700; /* Bold for headings */
+}
+
+p {
+  font-weight: 400; /* Normal for text */
+}
+
+
+.headercs{
+    margin-top: 18px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    width: 100%;
+    z-index: 1000;
+}
+.navcs{
+    display: flex;
+    gap: 25px;
+    background-color: rgb(255, 255, 255);
+    justify-self: center;
+    padding: 20px 40px;
+    font: 16px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+
+.theme-toggle{
+    cursor: pointer;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    margin-right: 20px;
+    border-radius: 50%;
+    justify-self: end;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(255, 255, 255);
+}
+.mobile-dropdown {
+    display: none;
+}
+body.dark-mode .navcs,
+body.dark-mode .theme-toggle,
+body.dark-mode .journey_card {
+    background-color: rgb(0, 0, 0);
+}
+body.dark-mode .navcs a[style] {
+    background-color: rgb(30, 30, 30) !important;
+}
+body.dark-mode img {
+    mix-blend-mode: normal;
+}
+body.dark-mode .timeline::before {
+    background-color: white;
+}
+body.dark-mode .circle {
+    background-color: black;
+}
+body.dark-mode .journey_card span,
+body.dark-mode .journey_card small {
+    color: rgb(180, 180, 180);
+}
+body.dark-mode .journey_card.left::after {
+    border-left-color: black;
+}
+body.dark-mode .journey_card.right::after {
+    border-right-color: black;
+}
+
+.journey_body{
+    position: relative;
+
+    width: 100%;
+    max-width: 760px;
+
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    min-height: 500px;
+}
+
+/* Timeline Line */
+.timeline{
+    position: relative;
+    width: 34px;
+    min-height: 500px;
+    z-index: 1;
+}
+
+.timeline::before{
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 3px;
+    background-color: black;
+    transform: translateX(-50%);
+}
+
+/* Timeline Circles */
+.circle{
+    width: 18px;
+    height: 18px;
+
+    background-color: white;
+    border: 3px solid #d6e4ff;
+
+    border-radius: 50%;
+
+    position: absolute;
+    left: 50%;
+    z-index: 2;
+
+    transform: translateX(-50%);
+}
+
+.circle:nth-child(1){
+    top: 25px;
+}
+
+.circle:nth-child(2){
+    top: 200px;
+}
+
+.circle:nth-child(3){
+    top: 380px;
+}
+
+/* Cards */
+.journey_card{
+    position: absolute;
+
+    width: 300px;
+
+    background-color: white;
+
+    padding: 18px 20px;
+
+    border-radius: 12px;
+
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    z-index: 2;
+    cursor: pointer;
+    transition: transform 0.3s ease,
+                box-shadow 0.3s ease;
+}
+.journey_card:hover{
+    transform: translateY(-8px);
+
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+}
+
+.journey_card h2{
+    font-size: 28px;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.journey_card p{
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.journey_card span,
+.journey_card small{
+    display: block;
+
+    color: gray;
+    margin-top: 4px;
+    font-size: 13px;
+}
+
+/* Left Cards */
+.left{
+    right: calc(50% + 40px);
+}
+
+/* Right Card */
+.right{
+    left: calc(50% + 40px);
+    top: 175px;
+}
+
+/* Bottom Left Card */
+.bottom{
+    top: 355px;
+}
+
+.journey_card::after{
+    content: "";
+    position: absolute;
+    top: 22px;
+    width: 0;
+    height: 0;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+}
+
+.journey_card.left::after{
+    right: -8px;
+    border-left: 16px solid white;
+}
+
+.journey_card.right::after{
+    left: -8px;
+    border-right: 16px solid white;
+}
+
+
+/* Pop upss */
+.journey_popup{
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 2000;
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    transform: translate(-50%, -50%) scale(0.96);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.28);
+    background-color: white;
+    padding: 45px 24px 24px;
+    width: min(900px, calc(100% - 32px));
+    border-radius: 10px;
+    display: none;
+    flex-direction: column;
+    gap: 20px;
+}
+.journey_popup.active{
+    display: flex;
+    transform: translate(-50%, -50%) scale(1);
+}
+.popup_close{
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background-color: rgb(242, 242, 242);
+    color: black;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 700;
+}
+.popup_close:hover{
+    background-color: rgb(225, 225, 225);
+}
+.pop{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+body.dark-mode .journey_popup{
+    background-color: rgb(0, 0, 0);
+}
+body.dark-mode .journey_popup p[style*="color: gray"]{
+    color: rgb(180, 180, 180) !important;
+}
+body.dark-mode .popup_close{
+    background-color: rgb(30, 30, 30);
+    color: white;
+}
+body.dark-mode .popup_close:hover{
+    background-color: rgb(55, 55, 55);
+}
+
+@media (max-width: 780px){
+    body {
+        align-items: stretch;
+        overflow-x: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .headercs {
+        width: calc(100% - 24px);
+        left: 12px;
+        margin-top: 12px;
+       display: grid;
+        grid-template-columns: 1fr auto;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .navcs {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+        padding: 8px;
+        border-radius: 6px;
+    }
+
+    .navcs a {
+        font-size: 10px;
+        padding: 6px 8px;
+    }
+
+    .navcs a[style] {
+        margin-top: 0 !important;
+        padding: 6px 10px !important;
+        border-radius: 6px !important;
+    }
+
+    .theme-toggle {
+        flex-shrink: 0;
+        margin-right: 0;
+        width: 36px;
+        height: 36px;
+    }
+
+    .theme-toggle img {
+        width: 18px !important;
+    }
+
+    .journey_body{
+        max-width: 92%;
+        justify-content: flex-start;
+        padding-left: 22px;
+    }
+
+    .timeline{
+        margin-left: -20px;
+    }
+
+    .journey_card{
+        width: min(320px, calc(100% - 60px));
+        margin-left: -10px;
+    }
+
+    .journey_popup {
+        max-height: calc(100vh - 40px);
+        padding: 42px 18px 20px;
+        width: calc(100% - 24px);
+    }
+
+    .journey_popup p {
+        font-size: 18px !important;
+        line-height: 1.5 !important;
+    }
+
+    .journey_popup p:first-of-type {
+        font-size: 28px !important;
+    }
+
+    .journey_popup p:nth-of-type(2) {
+        font-size: 22px !important;
+    }
+
+    .journey_popup p:nth-of-type(3),
+    .journey_popup p:nth-of-type(5) {
+        font-size: 17px !important;
+    }
+
+    .left,
+    .right{
+        left: 68px;
+        right: auto;
+    }
+
+    .journey_card.left::after,
+    .journey_card.right::after{
+        left: -10px;
+        right: auto;
+        border-left: 0;
+        border-right: 16px solid white;
+    }
+
+    body.dark-mode .journey_card.left::after,
+    body.dark-mode .journey_card.right::after {
+        border-right-color: black;
+    }
+}
+
+@media (max-width: 431px) {
+    
+    .headercs {
+        position: absolute;
+        display: block;
+    }
+    .mobltitle{
+        margin-left: 30px;
+        margin-bottom: 20px;
+    }
+
+    .navcs,
+    .theme-toggle {
+        display: none;
+    }
+
+    .mobile-dropdown {
+        display: block;
+        width: 100%;
+        background-color: rgb(255, 255, 255);
+        border-radius: 10px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+    }
+
+    body.dark-mode .mobile-dropdown {
+        background-color: rgb(0, 0, 0);
+    }
+
+    .mobile-dropdown summary {
+        display: flex;
+        justify-content: flex-end;
+        padding: 8px 12px;
+        list-style: none;
+    }
+
+    .mobile-dropdown summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .mobile-menu-icon {
+        width: 24px;
+        height: 20px;
+        position: relative;
+        display: inline-flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .mobile-menu-icon span {
+        width: 100%;
+        height: 2px;
+        background-color: black;
+        border-radius: 999px;
+        transition: transform 0.3s ease, opacity 0.2s ease;
+        transform-origin: center;
+    }
+
+    body.dark-mode .mobile-menu-icon span {
+        background-color: white;
+    }
+
+    .mobile-dropdown[open] .mobile-menu-icon span:first-child {
+        transform: translateY(9px) rotate(45deg);
+    }
+
+    .mobile-dropdown[open] .mobile-menu-icon span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .mobile-dropdown[open] .mobile-menu-icon span:last-child {
+        transform: translateY(-9px) rotate(-45deg);
+    }
+
+    .mobile-dropdown-content {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 0 12px 12px;
+    }
+
+   
+    .mobile-dropdown-content a {
+        padding: 7px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    .mobile-dropdown-content a:hover,
+    .mobile-dropdown-content a:nth-child(3) {
+        background-color: rgb(205, 205, 205);
+    }
+
+    .mobile-theme-toggle {
+        cursor: pointer;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        align-self: center;
+        background-color: rgb(242, 242, 242);
+    }
+
+    body.dark-mode .mobile-theme-toggle {
+        background-color: rgb(30, 30, 30);
+    }
+
+    .mobile-theme-toggle img {
+        width: 18px;
+    }
+
+    body > p:first-of-type {
+        margin-top: 85px !important;
+    }
+}

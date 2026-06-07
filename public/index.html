@@ -1,12 +1,106 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Hello, World!</title>
-	</head>
-	<body>
-		<h1 id="heading">Hello, World!</h1>
-		<p>This page comes from a static asset stored at `public/index.html` as configured in `wrangler.jsonc`.</p>
-	</body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abubakar Portfolio</title>
+    <link rel="icon" href="imgs/abu logo.png">
+    <link rel="stylesheet" href="homepg.css">
+    <link rel="stylesheet" href="chatbot.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <meta name="description" content="Portfolio of Mohammed Abubakar Siddiq, Data Science student at IIT Madras and Web Developer. Explore my projects, skills, and journey.">
+
+    <meta property="og:title" content="Mohammed Abubakar Siddiq | Data Science Student & Web Developer">
+    <meta property="og:description" content="Explore my portfolio featuring web development projects, data science work, technical skills, certifications, and my journey as an IIT Madras Data Science student.">
+    <meta property="og:image" content="https://abubakar-portfolio-e0x.pages.dev/imgs/meta_img.png">
+    <meta property="og:url" content="https://abubakar-portfolio-e0x.pages.dev">
+    <meta property="og:type" content="website">
+
+</head>
+<body>
+    <!-- HEADER SECTIONNN -->
+    <header class="headercs">
+        <nav class="navcs">
+            <a href="homepg.html" style="background-color: rgb(205, 205, 205);padding: 8px 18px;border-radius: 10px;margin-top: -7px;">Home</a>
+            <a href="Projects_/projectspg.html">Projects</a>
+            <a href="Journey/journeypg.html">Journey</a>
+            <a href="Blogpg/blogpg.html">Blogs</a>
+            <a href="Contact/contactpg.html">Contact</a>
+        </nav>
+        <div class="theme-toggle">
+            <img style="width: 25px;" src="imgs/light-svgrepo-com.svg" alt="">
+        </div>
+        <details class="mobile-dropdown">
+            <summary>
+                <span class="mobile-menu-icon" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </summary>
+            <div class="mobile-dropdown-content">
+                <a href="homepg.html">Home</a>
+                <a href="Projects_/projectspg.html">Projects</a>
+                <a href="Journey/journeypg.html">Journey</a>
+                <a href="Blogpg/blogpg.html">Blogs</a>
+                <a href="Contact/contactpg.html">Contact</a>
+                <div class="mobile-theme-toggle">
+                    <img src="imgs/light-svgrepo-com.svg" alt="">
+                </div>
+            </div>
+        </details>
+    </header>
+
+    <!-- HIGHLIGHT SECTIONNN -->
+    <div class="highlightcs">
+        <div class="highlcs">
+            <p style="font-weight: 400;font-size: 75px;">Mohammed Abubakar</p>
+            <p style="font-size: 34px;">Data Science Student • Aspiring Software Engineer</p>
+            <div class="social_links">
+                <a href="https://wa.me/918121104202?text=Hi%20I%20am%20interested%20in%20your%20skills" target="_blank"><img src="/imgs/whatsapp-logo-variant-svgrepo-com.svg" alt=""></a>
+                <a href="https://github.com/Abubakarsiddiq9" target="_blank" target="_blank"><img src="/imgs/github-142-svgrepo-com.svg" alt="Github"></a>
+                <a href="mailto:abubakarsiddiqmohiuddin@gmail.com?subject=Portfolio%20Inquiry"><img src="/imgs/email-8-svgrepo-com.svg" alt="Email"></a>
+                <a href="tel:+918121104202" target="_blank"><img src="/imgs/phone-svgrepo-com.svg" alt="Phone"></a>
+            </div>
+
+        </div>
+        <img id="heroImage" src="/imgs/boy-draw.jpg" class="bodyimg"  alt="">
+    </div>
+
+
+    <!-- Who I Am SECTIONN  -->
+    <div class="whomics">
+        <p style="font-size: 40px;margin-bottom: 20px;">Who I Am</p>
+        <p>
+            Hello! I'm Abubakar, a Data Science student at IIT Madras and an aspiring Software Engineer based in Khammam, Telangana.
+
+            My interest in technology began at the age of 13 during the COVID-19 lockdown, when I wrote my first program—"Hello World" in C. What started as curiosity quickly developed into a passion for programming, leading me to build simple applications such as calculators and software tools for local businesses.
+
+            Since then, I have been continuously expanding my knowledge in software engineering, data science, web development, and modern technologies. I enjoy solving real-world problems through technology and am committed to developing innovative, scalable, and impactful software solutions.
+        </p>
+    </div>
+
+    <!-- What I Use SECTIONN -->
+    <div class="whatiucs">
+    <p style="font-size: 40px;margin-bottom: 20px;">What I Use</p>
+    <div class="toolsuse">
+        <img src="imgs/html-5-svgrepo-com.svg" alt="HTML" title="HTML">
+        <img src="imgs/css-3-svgrepo-com.svg" alt="css" title="css">
+        <img src="imgs/js-svgrepo-com.svg" alt="JavaScript" title="JavaScript">
+        <img src="imgs/python-svgrepo-com.svg" alt="Python" title="Python">
+        <img src="imgs/nodejs-icon-svgrepo-com.svg" alt="nodejs" title="nodejs">
+        <img src="imgs/postgresql-svgrepo-com.svg" alt="postgresql" title="postgresql">
+        <img style="border: none;outline: none;" src="imgs/github-svgrepo-com.svg" alt="GitHub" title="GitHub">
+        <img src="imgs/git-icon-logo-svgrepo-com.svg" alt="Git" title="Git">
+        <img style="width: 30px;" src="imgs/figma-svgrepo-com.svg" alt="Figma" title="Figma">
+        <img src="imgs/vs-code-svgrepo-com.svg" alt="Vs Code" title="Vs Code">
+    </div>
+    </div>
+    <script src="prscript.js"></script>
+    <!-- Cloudflare Web Analytics -->
+     <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "63edc74e28f8464387bbfd6cffca7742"}'></script><!-- End Cloudflare Web Analytics -->
+</body>
 </html>
