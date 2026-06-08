@@ -2,80 +2,122 @@
 
 ## Automated Testing
 
-Automated backend tests were implemented using **Jest** and **Supertest**.
+Automated tests are implemented using **Jest**.
 
-The tests simulate requests to the `/contact` API endpoint and verify that the backend behaves correctly under different scenarios.
+All tests run automatically on every pull request via GitHub Actions.
 
-### Test 1: Successful Contact Form Submission
+---
 
-```js
-test("should send email successfully", async () => {
-  ...
-});
+## Frontend Tests
+
+Located at `public/tests/frontend.test.js`.
+
+These tests verify that all portfolio pages exist at the correct file paths.
+
+### Test 1: Home page exists
+Checks that `public/index.html` exists.
+
+### Test 2: Contact page exists
+Checks that `public/Contact/contactpg.html` exists.
+
+### Test 3: Projects page exists
+Checks that `public/Projects_/projectspg.html` exists.
+
+### Test 4: Blogs page exists
+Checks that `public/Blogpg/blogpg.html` exists.
+
+### Test 5: Journey page exists
+Checks that `public/Journey/journeypg.html` exists.
+
+---
+
+## Worker API Tests
+
+Located at `src/tests/worker.test.js`.
+
+These tests verify the behavior of all Cloudflare Worker API endpoints. Resend and the Gemini API are fully mocked so no real external calls are made during testing.
+
+### Mocking
+
+**Resend** is mocked using `jest.mock('resend')` — no real emails are sent.
+
+**Gemini API** (`fetch`) is mocked using `global.fetch = jest.fn()` — no real AI calls are made.
+
+---
+
+### GET /api/test
+
+**Test: returns success true**
+* Sends a GET request to `/api/test`
+* Verifies status 200
+* Verifies `success: true` in response
+
+---
+
+### POST /api/contact
+
+**Test 1: sends email and returns success**
+* Sends valid name, email, and message
+* Verifies status 200
+* Verifies `success: true`
+
+**Test 2: returns 400 when fields are missing**
+* Sends incomplete data (name only)
+* Verifies status 400
+* Verifies `success: false`
+
+---
+
+### POST /api/chat
+
+**Test 1: returns AI reply**
+* Sends a valid conversation history array
+* Verifies status 200
+* Verifies `success: true`
+* Verifies reply is a string
+
+**Test 2: returns 400 when history is missing**
+* Sends empty request body
+* Verifies status 400
+* Verifies `success: false`
+
+**Test 3: returns 400 when history is empty array**
+* Sends `history: []`
+* Verifies status 400
+* Verifies `success: false`
+
+---
+
+### Unknown Route
+
+**Test: returns 404**
+* Sends a request to an unknown path
+* Verifies status 404
+
+---
+
+## Running Tests Locally
+
+```bash
+npm install
+npm test
 ```
 
-Purpose:
-
-* Sends valid contact form data
-* Verifies that the request is accepted
-* Verifies that the API returns a successful response
-
-Expected Result:
-
-```json
-{
-  "success": true
-}
+Expected output:
 ```
-
-Status Code:
-
-```text
-200 OK
+PASS  public/tests/frontend.test.js
+PASS  src/tests/worker.test.js
+Test Suites: 2 passed, 2 total
+Tests:       12 passed, 12 total
 ```
 
 ---
 
-### Test 2: Missing Required Fields
+## CI/CD Integration
 
-```js
-test("should return 400 if fields are missing", async () => {
-  ...
-});
-```
+GitHub Actions runs all tests automatically on every pull request to `main`.
 
-Purpose:
-
-* Sends incomplete contact form data
-* Verifies server-side validation
-* Ensures invalid requests are rejected
-
-Expected Result:
-
-```json
-{
-  "success": false
-}
-```
-
-Status Code:
-
-```text
-400 Bad Request
-```
-
----
-
-## Mocking Resend
-
-The Resend email service is mocked during testing.
-
-This ensures that:
-
-* No real emails are sent during test execution
-* Tests run quickly
-* Tests do not depend on external services
-* Backend logic can be verified in isolation
+The main branch is protected — pull requests cannot be merged until all 12 tests pass.
 
 ---
 
@@ -84,35 +126,22 @@ This ensures that:
 The following functionality was manually verified:
 
 ### Responsive Design
-
 * Desktop layout
-* Tablet layout
 * Mobile layout
 
 ### Contact Form
-
 * Form submission
 * Email delivery
 * Error handling
 
 ### Portfolio Chatbot
-
-* Chatbot opens correctly
-* Responses are displayed correctly
+* Chatbot opens and closes correctly
+* AI responses display correctly
+* Fallback mode activates when limit is reached
+* Messages persist across page navigation (sessionStorage)
+* Rate limit persists across page reloads (localStorage)
 
 ### Theme Toggle
-
 * Light mode
 * Dark mode
-* Theme switching functionality
-
----
-
-## Continuous Testing
-
-GitHub Actions automatically runs frontend and backend tests:
-
-* On every push to the main branch
-* Once daily using a scheduled cron workflow
-
-This helps ensure that future changes do not break existing functionality.
+* Theme preference saved across sessions
