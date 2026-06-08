@@ -22,7 +22,7 @@ FACTS ABOUT ABUBAKAR:
 - Goals: Become a skilled Software Engineer, build innovative scalable software, interested in intersection of data science and web development
 - Portfolio pages: Home, Projects, Journey, Blogs, Contact`;
 
-export default {
+const worker = {
   async fetch(request, env) {
     const url = new URL(request.url);
 
@@ -153,3 +153,6 @@ export default {
         });
   }
 };
+export default worker;
+// Allows Jest (CommonJS) to import this file
+if (typeof module !== "undefined") module.exports = { default: worker };
