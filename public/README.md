@@ -12,28 +12,29 @@ A responsive full-stack portfolio website showcasing my projects, skills, journe
 
 ### Backend
 
-* Node.js
-* Express.js
+* Cloudflare Workers
 
 ### Email Service
 
 * Resend
 
+### AI
+
+* Google Gemini API (gemini-2.5-flash-lite)
+
 ### Testing
 
 * Jest
-* Supertest
 
 ### Deployment & DevOps
 
-* Cloudflare Pages
-* Render
+* Cloudflare Workers
 * GitHub Actions
 
 ## Features
 
 * Responsive design for desktop and mobile devices
-* Interactive portfolio chatbot
+* AI-powered portfolio chatbot
 * Project showcase section
 * Journey timeline
 * Blog page
@@ -42,47 +43,57 @@ A responsive full-stack portfolio website showcasing my projects, skills, journe
 * CI/CD pipeline
 
 ## Chatbot
-What it is:
-A chatbot on my portfolio that answers questions about me — my skills, education, projects, and contact info.
-How it works:
 
-* The frontend sends the user's message to my Express.js backend hosted on Render
-* The backend calls the Google Gemini API with a system prompt containing all my details
+**What it is:**
+A chatbot on my portfolio that answers questions about me — my skills, education, projects, and contact info.
+
+**How it works:**
+
+* The frontend sends the user's message to `/api/chat` on the Cloudflare Worker
+* The Worker calls the Google Gemini API with a system prompt containing all my details
 * Gemini generates a natural response and sends it back
 
-Rate limiting:
-The backend limits each user to 20 messages per hour using express-rate-limit. If they hit the limit, the chatbot switches to a predefined keyword-based fallback so they still get answers without consuming any API quota.
-Message persistence:
-Chat messages are saved in sessionStorage — so if you navigate to another page and come back, your conversation is still there. But when you close the tab, it clears. The rate limit count is saved in localStorage separately, so it persists across page navigations for the full hour window.
-Fallback mode:
-If the AI is down or limit is hit, it falls back to keyword matching — like if message includes "skills" → answer with tech stack. Zero API calls, zero cost.
+**Rate limiting:**
+The Worker limits each user to 20 messages per hour. If they hit the limit, the chatbot switches to a predefined keyword-based fallback so they still get answers without consuming any API quota.
+
+**Message persistence:**
+Chat messages are saved in `sessionStorage` — so if you navigate to another page and come back, your conversation is still there. But when you close the tab, it clears. The rate limit count is saved in `localStorage` separately, so it persists across page navigations for the full hour window.
+
+**Fallback mode:**
+If the AI is down or the limit is hit, it falls back to keyword matching. Zero API calls, zero cost.
 
 ## Contact Form
 
-The contact form is powered by a Node.js and Express backend.
+The contact form is powered by a Cloudflare Worker.
 
 When a user submits the form:
 
-1. The frontend sends a POST request to the backend API.
-2. The backend validates the form data.
-3. Rate limiting is applied to prevent spam.
-4. Resend is used to send the message to my email address.
-5. The API returns a success or failure response to the frontend.
+1. The frontend sends a POST request to `/api/contact`.
+2. The Worker validates the form data.
+3. Resend is used to send the message to my email address.
+4. The Worker returns a success or failure JSON response.
+
+## API Endpoints
+
+| Endpoint | Method | Description |
+|---|---|---|
+| `/api/test` | GET | Health check |
+| `/api/contact` | POST | Sends contact form email via Resend |
+| `/api/chat` | POST | AI chatbot via Gemini API |
 
 ## Testing
 
-Automated tests are implemented using Jest and Supertest.
+Automated tests are implemented using Jest.
 
 ### Frontend Tests
 
-* Verify important frontend functionality
-* Check critical UI components
+* Verify that all portfolio pages exist in the correct locations
 
-### Backend Tests
+### Worker API Tests
 
-* Verify API endpoints
-* Validate request handling
-* Test successful and failed contact form submissions
+* Verify all API endpoints (`/api/test`, `/api/contact`, `/api/chat`)
+* Validate request handling and input validation
+* Resend and Gemini are mocked — no real API calls during tests
 
 ## CI/CD
 
@@ -90,28 +101,47 @@ GitHub Actions is used for Continuous Integration and Continuous Deployment.
 
 ### Continuous Integration (CI)
 
-* Runs frontend and backend tests on every push
-* Prevents broken code from reaching production
+* Runs on every pull request to main
+* Runs all Jest tests (frontend + worker)
+* PRs cannot be merged until all tests pass
 
 ### Continuous Deployment (CD)
 
-* Deploys the website only when all tests pass
-* Uses Cloudflare Pages for production deployment
+* Runs on every push to main
+* Deploys to Cloudflare Workers via Wrangler
 * Cloudflare authentication is handled securely through GitHub Secrets
 
-### Scheduled Testing
+## Branch Protection
 
-A cron workflow runs automated tests once per day to ensure continued project stability.
+The main branch is protected via a GitHub branch ruleset. All pull requests must pass the CI test job before merging is allowed.
 
 ## Project Structure
 
-* Home Page
-* Projects Page
-* Journey Page
-* Blog Page
-* Contact Page
+```
+portfolio-worker/
+├── .github/workflows/
+│   ├── ci.yml          # Runs tests on every PR
+│   └── deploy.yml      # Deploys to Cloudflare on push to main
+├── public/             # Static HTML, CSS, JS files
+│   ├── tests/
+│   │   └── frontend.test.js
+│   ├── index.html
+│   ├── Contact/
+│   ├── Projects_/
+│   ├── Journey/
+│   └── Blogpg/
+├── src/
+│   ├── index.js        # Cloudflare Worker entry point
+│   └── tests/
+│       └── worker.test.js
+├── wrangler.jsonc
+└── package.json
+```
 
-## Design
+## Pages
 
-* Project planning is documented in `PLAN.md`
-* Figma design link is available in `DESIGN.md`
+* **Home Page:** Introduction, skills, and technologies I use
+* **Projects Page:** Displays featured and smaller projects
+* **Journey Page:** Shows my learning journey and milestones
+* **Blog Page:** Contains articles and updates
+* **Contact Page:** Allows visitors to send messages directly to my email
