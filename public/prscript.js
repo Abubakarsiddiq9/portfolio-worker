@@ -5,7 +5,7 @@ const assetPath = (path) => new URL(path, siteRoot).href;
 
 const CHAT_URL = `/api/chat`;
 
-// ── THEME TOGGLE ────────────────────────────────────────────
+// ── THEME TOGGLE ───────────────────────────────────────────
 const themeButtons = document.querySelectorAll(".theme-toggle, .mobile-theme-toggle");
 const themeIcons   = document.querySelectorAll(".theme-toggle img, .mobile-theme-toggle img");
 const heroImage    = document.querySelector("#heroImage");
