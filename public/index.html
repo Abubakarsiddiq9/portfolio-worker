@@ -30,8 +30,31 @@
             <a href="Blogpg/blogpg.html">Blogs</a>
             <a href="Contact/contactpg.html">Contact</a>
         </nav>
-        <div class="theme-toggle">
-            <img style="width: 25px;" src="imgs/light-svgrepo-com.svg" alt="">
+        <div class="header-actions">
+            <button id="adminBtn">Admin</button>
+
+            <div class="theme-toggle">
+                <img style="width: 25px;" src="imgs/light-svgrepo-com.svg" alt="">
+            </div>
+        </div>
+        <div id="adminModal" class="admin-modal">
+            <div class="admin-modal-content">
+                <h2>Admin Login</h2>
+
+                <input
+                    type="password"
+                    id="adminPassword"
+                    placeholder="Enter password"
+                >
+
+                <button id="loginBtn">
+                    Login
+                </button>
+
+                <button id="closeModalBtn">
+                    Cancel
+                </button>
+            </div>
         </div>
         <details class="mobile-dropdown">
             <summary>
@@ -99,6 +122,7 @@
         <img src="imgs/vs-code-svgrepo-com.svg" alt="Vs Code" title="Vs Code">
     </div>
     </div>
+
     <script src="prscript.js"></script>
     <!-- Cloudflare Web Analytics -->
      <script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "63edc74e28f8464387bbfd6cffca7742"}'></script><!-- End Cloudflare Web Analytics -->

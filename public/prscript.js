@@ -149,6 +149,76 @@ async function askGemini(userMessage) {
     return reply;
 }
 
+// Admin Login uIII
+const adminBtn =
+    document.getElementById("adminBtn");
+
+const adminModal =
+    document.getElementById("adminModal");
+
+const closeModalBtn =
+    document.getElementById("closeModalBtn");
+
+if (adminBtn) {
+    adminBtn.addEventListener("click", () => {
+        adminModal.style.display = "block";
+    });
+}
+
+if (closeModalBtn) {
+    closeModalBtn.addEventListener("click", () => {
+        adminModal.style.display = "none";
+    });
+}
+
+
+const loginBtn =
+    document.getElementById("loginBtn");
+
+const adminPassword =
+    document.getElementById("adminPassword");
+
+if (loginBtn) {
+    loginBtn.addEventListener("click", async () => {
+
+        try {
+            const response = await fetch(
+                "/api/admin/login",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        password: adminPassword.value
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!data.success) {
+                alert("Invalid password");
+                return;
+            }
+
+            window.location.href =
+                "/Admin/guestbook.html";
+
+        } catch (err) {
+            console.error(err);
+            alert("Login failed");
+        }
+
+    });
+}
+
+
+
+
+
+
+
 // ── CHATBOT UI ────────────────────────────────────────────────
 function setupChatbot() {
     if (document.getElementById("chatbot-overlay")) return;
