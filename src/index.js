@@ -65,6 +65,13 @@ const worker = {
         Message:
         ${message}`
             });
+            await env.portfolio_db
+                .prepare(`
+                    INSERT INTO contacts (name, email, message)
+                    VALUES (?, ?, ?)
+                `)
+                .bind(name, email, message) 
+                .run();
 
             return Response.json({
             success: true
