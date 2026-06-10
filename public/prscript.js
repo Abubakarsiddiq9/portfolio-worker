@@ -171,6 +171,11 @@ if (closeModalBtn) {
     });
 }
 
+const guestbookLink =
+    document.getElementById("guestbookLink");
+
+const logoutHeaderBtn =
+    document.getElementById("logoutHeaderBtn");
 
 const loginBtn =
     document.getElementById("loginBtn");
@@ -212,12 +217,6 @@ if (loginBtn) {
 
     });
 }
-
-
-
-
-
-
 
 // ── CHATBOT UI ────────────────────────────────────────────────
 function setupChatbot() {
@@ -476,5 +475,71 @@ function setupChatbot() {
     });
 }
 
+
+async function checkAdminStatus() {
+
+    try {
+
+        const response = await fetch(
+            "/api/admin/check"
+        );
+
+        const data =
+            await response.json();
+
+        if (data.loggedIn) {
+
+            if (adminBtn)
+                adminBtn.style.display = "none";
+
+            if (guestbookLink)
+                guestbookLink.style.display = "inline-block";
+
+            if (logoutHeaderBtn)
+                logoutHeaderBtn.style.display = "inline-block";
+
+        } else {
+
+            if (adminBtn)
+                adminBtn.style.display = "inline-block";
+
+            if (guestbookLink)
+                guestbookLink.style.display = "none";
+
+            if (logoutHeaderBtn)
+                logoutHeaderBtn.style.display = "none";
+
+        }
+
+    } catch (err) {
+
+        console.error(err);
+
+    }
+
+}
+if (logoutHeaderBtn) {
+
+    logoutHeaderBtn.addEventListener(
+        "click",
+        async () => {
+
+            await fetch(
+                "/api/admin/logout",
+                {
+                    method: "POST"
+                }
+            );
+
+            window.location.reload();
+
+        }
+    );
+
+}
+
+
+
+checkAdminStatus();
 setupChatbot();
 })();

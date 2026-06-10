@@ -183,6 +183,22 @@ const worker = {
         );
     }
 
+    // Check Route
+    if (
+        url.pathname === "/api/admin/check" &&
+        request.method === "GET"
+    ) {
+        const admin = verifyAdmin(
+            request,
+            env.JWT_SECRET
+        );
+
+        return Response.json({
+            loggedIn: !!admin
+        });
+    }
+
+
     // message route
     if (
         url.pathname === "/api/admin/messages" &&

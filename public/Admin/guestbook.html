@@ -4,16 +4,94 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guestbook</title>
-
+    <link rel="stylesheet" href="../homepg.css">
     <link rel="stylesheet" href="guestbook.css">
 </head>
 <body>
 
-    <h1>Admin Guestbook</h1>
+    <header class="headercs">
+        <nav class="navcs">
+            <a href="../index.html">Home</a>
+            <a href="../Projects_/projectspg.html">Projects</a>
+            <a href="../Journey/journeypg.html">Journey</a>
+            <a href="../Blogpg/blogpg.html">Blogs</a>
+            <a href="../Contact/contactpg.html">Contact</a>
+        </nav>
+        <div class="header-actions">
+            <button
+                id="adminBtn"
+                style="display:none;"
+            >
+                Admin
+            </button>
 
-    <button id="logoutBtn">
-    Logout
-    </button>
+            <a
+                id="guestbookLink"
+                href="guestbook.html"
+                style="display:none;"
+            >
+                Guestbook
+            </a>
+
+            <button
+                id="logoutHeaderBtn"
+                style="display:none;"
+            >
+                Logout
+            </button>
+        </div>
+
+        <div class="theme-toggle">
+            <img
+                style="width:25px;"
+                src="../imgs/light-svgrepo-com.svg"
+                alt=""
+            >
+        </div>
+        <div id="adminModal" class="admin-modal">
+            <div class="admin-modal-content">
+                <h2>Admin Login</h2>
+
+                <input
+                    type="password"
+                    id="adminPassword"
+                    placeholder="Enter password"
+                >
+
+                <button id="loginBtn">
+                    Login
+                </button>
+
+                <button id="closeModalBtn">
+                    Cancel
+                </button>
+            </div>
+        </div>
+        <details class="mobile-dropdown">
+            <summary>
+                <span class="mobile-menu-icon" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            </summary>
+            <div class="mobile-dropdown-content">
+                <a href="homepg.html">Home</a>
+                <a href="Projects_/projectspg.html">Projects</a>
+                <a href="Journey/journeypg.html">Journey</a>
+                <a href="Blogpg/blogpg.html">Blogs</a>
+                <a href="Contact/contactpg.html">Contact</a>
+                <div class="mobile-theme-toggle">
+                    <img src="../imgs/light-svgrepo-com.svg" alt="">
+                </div>
+            </div>
+        </details>
+    </header>
+    <h1 class="guestbook-title">
+        Guestbook Messages
+    </h1>
+
+   
     <div id="messages-container"></div>
 
     <script src="guestbook.js"></script>

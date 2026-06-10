@@ -1,16 +1,86 @@
+const logoutBtn =
+    document.getElementById("logoutBtn");
+const logoutHeaderBtn =
+    document.getElementById("logoutHeaderBtn");
+async function checkAdminStatus() {
+
+    const response =
+        await fetch("/api/admin/check");
+
+    const data =
+        await response.json();
+
+    const adminBtn =
+        document.getElementById("adminBtn");
+
+    const guestbookLink =
+        document.getElementById("guestbookLink");
+
+    const logoutHeaderBtn =
+        document.getElementById("logoutHeaderBtn");
+
+    if (data.loggedIn) {
+
+        adminBtn.style.display = "none";
+
+        guestbookLink.style.display =
+            "inline-block";
+
+        logoutHeaderBtn.style.display =
+            "inline-block";
+
+    } else {
+
+        adminBtn.style.display =
+            "inline-block";
+
+        guestbookLink.style.display =
+            "none";
+
+        logoutHeaderBtn.style.display =
+            "none";
+
+    }
+
+}
+
+if (logoutBtn || logoutHeaderBtn) {
+
+    const btn =
+        logoutBtn || logoutHeaderBtn;
+
+    btn.addEventListener(
+        "click",
+        async () => {
+            await fetch(
+                "/api/admin/logout",
+                {
+                    method: "POST"
+                }
+            );
+
+            window.location.href = "/";
+        }
+    );
+
+}
 async function loadMessages() {
     try {
         const response = await fetch("/api/admin/messages");
         const data = await response.json();
+        
+        if (!data.success) {
+
+            window.location.href = "/";
+            return;
+
+        }
+
 
         const container =
             document.getElementById("messages-container");
 
-        if (!data.success) {
-            container.innerHTML =
-                `<h2>Unauthorized</h2>`;
-            return;
-        }
+        
 
         if (data.messages.length === 0) {
             container.innerHTML =
@@ -27,29 +97,32 @@ async function loadMessages() {
             card.className = "message-card";
 
             card.innerHTML = `
-                <h3>${message.name}</h3>
+                <div class="message-header">
 
-                <p>
-                    <strong>Email:</strong>
+                    <div class="message-name">
+                        ${message.name}
+                    </div>
+
+                    <button
+                        class="delete-btn"
+                        data-id="${message.id}"
+                    >
+                        Delete
+                    </button>
+
+                </div>
+
+                <div class="message-email">
                     ${message.email}
-                </p>
+                </div>
 
-                <p>
-                    <strong>Message:</strong>
+                <div class="message-text">
                     ${message.message}
-                </p>
+                </div>
 
-                <p>
-                    <strong>Date:</strong>
-                    ${message.submitted_at}
-                </p>
-
-                <button
-                    class="delete-btn"
-                    data-id="${message.id}"
-                >
-                    Delete
-                </button>
+                <div class="message-date">
+                    Submitted: ${message.submitted_at}
+                </div>
             `;
 
             container.appendChild(card);
@@ -100,25 +173,6 @@ async function loadMessages() {
         console.error(err);
     }
 }
-const logoutBtn =
-    document.getElementById("logoutBtn");
 
-if (logoutBtn) {
-
-    logoutBtn.addEventListener(
-        "click",
-        async () => {
-
-            await fetch(
-                "/api/admin/logout",
-                {
-                    method: "POST"
-                }
-            );
-
-            window.location.href = "/";
-        }
-    );
-
-}
+checkAdminStatus();
 loadMessages();

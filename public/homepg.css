@@ -72,6 +72,27 @@ p {
     width: 300px;
     margin: 100px auto;
 }
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#adminBtn,
+#logoutHeaderBtn,
+#guestbookLink {
+
+    padding: 8px 16px;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    font-size: 14px;
+    font-weight: 600;
+}
 
 
 
