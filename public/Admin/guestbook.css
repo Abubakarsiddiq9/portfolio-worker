@@ -2,9 +2,187 @@ body {
     font-family: Arial, sans-serif;
 }
 
+body.dark-mode {
+    background-color: rgb(132, 132, 132);
+}
+
+body.dark-mode * {
+    color: white;
+}
+
+.header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    justify-self: end;
+}
+
+.admin-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 2500;
+}
+
+.admin-modal-content {
+    background: white;
+    padding: 24px;
+    width: min(92%, 360px);
+    margin: 100px auto;
+    border-radius: 18px;
+    box-shadow: 0 24px 40px rgba(0, 0, 0, 0.18);
+}
+
+body.dark-mode .admin-modal-content {
+    background-color: #1f1f1f;
+}
+
+.mobile-dropdown button {
+    padding: 5px;
+    border-radius: 5px;
+    color: white;
+    background-color: black;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    width: 100%;
+    text-align: center;
+}
+.mobile-dropdown-content button{
+        padding: 5px;
+        border-radius: 5px;
+        color: white;
+        background-color: black;
+    }
+    .mobileGuestbookLinkclass{
+        padding: 5px;
+        border-radius: 5px;
+        color: white;
+        background-color: black;
+    }
+    
+    body.dark-mode .mobileGuestbookLinkclass,body.dark-mode .mobile-dropdown button{
+        color: black;
+        background-color: white;
+    }
+
+.mobileGuestbookLinkclass {
+    padding: 5px;
+    border-radius: 5px;
+    color: white;
+    background-color: black;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+body.dark-mode .mobileGuestbookLinkclass,
+body.dark-mode .mobile-dropdown button {
+    color: black;
+    background-color: white;
+}
+
+.mobile-theme-toggle {
+    margin-top: 10px;
+}
+
+.header-actions button,
+.header-actions a#guestbookLink {
+    border: none;
+    background-color: #111;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.header-actions button:hover,
+.header-actions a#guestbookLink:hover {
+    transform: translateY(-1px);
+    background-color: #262626;
+}
+
+body.dark-mode .header-actions button,
+body.dark-mode .header-actions a#guestbookLink {
+    background-color: #222;
+    color: #fff;
+    box-shadow: 0 10px 18px rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode .header-actions button:hover,
+body.dark-mode .header-actions a#guestbookLink:hover {
+    background-color: #333;
+}
+
+.admin-modal-content input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: none;
+    background-color: #f4f4f4;
+    color: #111;
+    font-size: 16px;
+    margin: 24px 0 18px;
+}
+
+body.dark-mode .admin-modal-content input {
+    background-color: #222;
+    color: #fff;
+}
+
+.admin-modal-content h2 {
+    margin: 0;
+    margin-bottom: 18px;
+    color: #111;
+}
+
+body.dark-mode .admin-modal-content h2 {
+    color: #fff;
+}
+
+.admin-modal-content button {
+    width: 100%;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 14px;
+    background-color: #111;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.16);
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-modal-content button + button {
+    margin-top: 12px;
+}
+
+.admin-modal-content button:hover {
+    transform: translateY(-1px);
+    background-color: #222;
+}
+
+.admin-modal-content button:active {
+    transform: scale(0.98);
+}
+
 .guestbook-title {
     text-align: center;
-    margin-top: 40px;
+    margin-top: 140px;
     margin-bottom: 30px;
 }
 
@@ -15,16 +193,21 @@ body {
 }
 
 .message-card {
-    border: 1px solid #d9d9d9;
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
     border-radius: 16px;
     padding: 20px;
-    margin-bottom: 20px;
-
-    transition: transform 0.2s ease;
+    margin-bottom: 30px;
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.message-card div{
+    color: rgb(0, 0, 0);
 }
 
 .message-card:hover {
     transform: translateY(-3px);
+    box-shadow: 0 20px 36px rgba(0, 0, 0, 0.45);
 }
 
 .message-header {
@@ -58,15 +241,29 @@ body {
 }
 
 .delete-btn {
-    padding: 8px 16px;
+    padding: 10px 16px;
+    margin-left: 16px;
     border: none;
     border-radius: 10px;
-
+    background-color: #e53e3e;
+    color: #fff;
     cursor: pointer;
     font-weight: bold;
+    box-shadow: 0 10px 20px rgba(229, 62, 62, 0.2);
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.delete-btn:hover {
+    background-color: #c53030;
+    transform: translateY(-1px);
+}
+
+.delete-btn:active {
+    transform: scale(0.98);
 }
 
 @media (max-width: 768px) {
+    
 
     #messages-container {
         padding: 10px;
@@ -75,11 +272,20 @@ body {
     .message-card {
         padding: 15px;
     }
+    .header-actions {
+      display: none;
+    }
+
 
     .message-header {
         flex-direction: column;
         align-items: flex-start;
         gap: 10px;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: flex-end;
     }
 
 }

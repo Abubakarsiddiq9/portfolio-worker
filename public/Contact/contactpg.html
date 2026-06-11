@@ -19,8 +19,21 @@
             <a href="../Blogpg/blogpg.html">Blogs</a>
             <a href="contactpg.html" style="background-color: rgb(205, 205, 205);padding: 8px 18px;border-radius: 10px;margin-top: -7px;">Contact</a>
         </nav>
-        <div class="theme-toggle">
-            <img style="width: 25px;" src="../imgs/light-svgrepo-com.svg" alt="">
+        <div class="header-actions">
+            <button id="adminBtn" style="display:none;">Admin</button>
+            <a id="guestbookLink" href="../Admin/guestbook.html" style="display:none;">Guestbook</a>
+            <button id="logoutHeaderBtn" style="display:none;">Logout</button>
+            <div class="theme-toggle">
+                <img style="width: 25px;" src="../imgs/light-svgrepo-com.svg" alt="">
+            </div>
+        </div>
+        <div id="adminModal" class="admin-modal">
+            <div class="admin-modal-content">
+                <h2>Admin Login</h2>
+                <input type="password" id="adminPassword" placeholder="Enter password">
+                <button id="loginBtn">Login</button>
+                <button id="closeModalBtn">Cancel</button>
+            </div>
         </div>
         <details class="mobile-dropdown">
             <summary>
@@ -35,7 +48,29 @@
                 <a href="../Projects_/projectspg.html">Projects</a>
                 <a href="../Journey/journeypg.html">Journey</a>
                 <a href="../Blogpg/blogpg.html">Blogs</a>
-                <a href="contactpg.html">Contact</a>
+                <a href="../Contact/contactpg.html">Contact</a>
+
+                <!-- Admin Controls -->
+                <button id="mobileAdminBtn" style="display:none;">
+                    Admin
+                </button>
+
+                <a
+                    id="mobileGuestbookLink"
+                    class="mobileGuestbookLinkclass"
+                    href="../Admin/guestbook.html"
+                    style="display:none;"
+                >
+                    Guestbook
+                </a>
+
+                <button
+                    id="mobileLogoutBtn"
+                    style="display:none;"
+                >
+                    Logout
+                </button>
+
                 <div class="mobile-theme-toggle">
                     <img src="../imgs/light-svgrepo-com.svg" alt="">
                 </div>

@@ -1,7 +1,8 @@
 (() => {
-const currentScript = document.currentScript;
-const siteRoot = currentScript ? new URL(".", currentScript.src) : new URL("./", window.location.href);
-const assetPath = (path) => new URL(path, siteRoot).href;
+const assetPath = (path) => {
+    const normalized = path.startsWith("/") ? path : `/${path}`;
+    return new URL(normalized, `${window.location.origin}/`).href;
+};
 
 const CHAT_URL = `/api/chat`;
 
@@ -220,6 +221,7 @@ if (loginBtn) {
 
 // ── CHATBOT UI ────────────────────────────────────────────────
 function setupChatbot() {
+    if (document.body.classList.contains("no-chatbot")) return;
     if (document.getElementById("chatbot-overlay")) return;
 
     const chatHTML = `
@@ -476,6 +478,7 @@ function setupChatbot() {
 }
 
 
+
 async function checkAdminStatus() {
 
     try {
@@ -484,32 +487,47 @@ async function checkAdminStatus() {
             "/api/admin/check"
         );
 
-        const data =
-            await response.json();
+        const data = await response.json();
 
-        if (data.loggedIn) {
+            if (data.loggedIn) {
+                if (adminBtn)
+                    adminBtn.style.display = "none";
 
-            if (adminBtn)
-                adminBtn.style.display = "none";
+                if (guestbookLink)
+                    guestbookLink.style.display = "inline-block";
 
-            if (guestbookLink)
-                guestbookLink.style.display = "inline-block";
+                if (logoutHeaderBtn)
+                    logoutHeaderBtn.style.display = "inline-block";
 
-            if (logoutHeaderBtn)
-                logoutHeaderBtn.style.display = "inline-block";
+                if (mobileAdminBtn)
+                    mobileAdminBtn.style.display = "none";
 
-        } else {
+                if (mobileGuestbookLink)
+                    mobileGuestbookLink.style.display = "inline-block";
 
-            if (adminBtn)
-                adminBtn.style.display = "inline-block";
+                if (mobileLogoutBtn)
+                    mobileLogoutBtn.style.display = "inline-block";
 
-            if (guestbookLink)
-                guestbookLink.style.display = "none";
+            } else {
+                if (adminBtn)
+                    adminBtn.style.display = "inline-block";
 
-            if (logoutHeaderBtn)
-                logoutHeaderBtn.style.display = "none";
+                if (guestbookLink)
+                    guestbookLink.style.display = "none";
 
-        }
+                if (logoutHeaderBtn)
+                    logoutHeaderBtn.style.display = "none";
+
+                if (mobileAdminBtn)
+                    mobileAdminBtn.style.display = "inline-block";
+
+                if (mobileGuestbookLink)
+                    mobileGuestbookLink.style.display = "none";
+
+                if (mobileLogoutBtn)
+                    mobileLogoutBtn.style.display = "none";
+
+            }
 
     } catch (err) {
 
@@ -518,9 +536,27 @@ async function checkAdminStatus() {
     }
 
 }
-if (logoutHeaderBtn) {
 
-    logoutHeaderBtn.addEventListener(
+
+const mobileAdminBtn =
+document.getElementById("mobileAdminBtn");
+
+const mobileGuestbookLink =
+    document.getElementById("mobileGuestbookLink");
+
+const mobileLogoutBtn =
+    document.getElementById("mobileLogoutBtn");
+if (mobileAdminBtn) {
+    mobileAdminBtn.addEventListener(
+        "click",
+        () => {
+            adminModal.style.display = "block";
+        }
+    );
+}
+if (mobileLogoutBtn) {
+
+    mobileLogoutBtn.addEventListener(
         "click",
         async () => {
 
@@ -532,10 +568,25 @@ if (logoutHeaderBtn) {
             );
 
             window.location.reload();
-
         }
     );
+}
 
+
+    
+if (logoutHeaderBtn) {
+
+    async function handleLogout() {
+        await fetch(
+            "/api/admin/logout",
+            {
+                method: "POST"
+            }
+        );
+        window.location.reload();
+    }
+
+    logoutHeaderBtn.addEventListener("click", handleLogout);
 }
 
 
