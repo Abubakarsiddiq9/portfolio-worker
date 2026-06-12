@@ -88,6 +88,35 @@ These tests verify the behavior of all Cloudflare Worker API endpoints. Resend a
 
 ---
 
+## Admin Authentication Tests
+
+### Login
+
+* Correct password logs in successfully
+* Invalid password returns 401
+* JWT cookie is created
+
+### Session Check
+
+* Logged-in users receive `loggedIn: true`
+* Logged-out users receive `loggedIn: false`
+
+### Guestbook Access
+
+* Authorized users can view messages
+* Unauthorized users are redirected
+
+### Message Deletion
+
+* Delete button removes message
+* Database record is removed
+* UI updates immediately
+
+### Logout
+
+* JWT cookie is cleared
+* Protected routes become inaccessible
+
 ### Unknown Route
 
 **Test: returns 404**
