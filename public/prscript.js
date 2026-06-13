@@ -1,7 +1,8 @@
 (() => {
-const currentScript = document.currentScript;
-const siteRoot = currentScript ? new URL(".", currentScript.src) : new URL("./", window.location.href);
-const assetPath = (path) => new URL(path, siteRoot).href;
+const assetPath = (path) => {
+    const normalized = path.startsWith("/") ? path : `/${path}`;
+    return new URL(normalized, `${window.location.origin}/`).href;
+};
 
 const CHAT_URL = `/api/chat`;
 
@@ -149,8 +150,78 @@ async function askGemini(userMessage) {
     return reply;
 }
 
+// Admin Login uIII
+const adminBtn =
+    document.getElementById("adminBtn");
+
+const adminModal =
+    document.getElementById("adminModal");
+
+const closeModalBtn =
+    document.getElementById("closeModalBtn");
+
+if (adminBtn) {
+    adminBtn.addEventListener("click", () => {
+        adminModal.style.display = "block";
+    });
+}
+
+if (closeModalBtn) {
+    closeModalBtn.addEventListener("click", () => {
+        adminModal.style.display = "none";
+    });
+}
+
+const guestbookLink =
+    document.getElementById("guestbookLink");
+
+const logoutHeaderBtn =
+    document.getElementById("logoutHeaderBtn");
+
+const loginBtn =
+    document.getElementById("loginBtn");
+
+const adminPassword =
+    document.getElementById("adminPassword");
+
+if (loginBtn) {
+    loginBtn.addEventListener("click", async () => {
+
+        try {
+            const response = await fetch(
+                "/api/admin/login",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        password: adminPassword.value
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!data.success) {
+                alert("Invalid password");
+                return;
+            }
+
+            window.location.href =
+                "/Admin/guestbook.html";
+
+        } catch (err) {
+            console.error(err);
+            alert("Login failed");
+        }
+
+    });
+}
+
 // ── CHATBOT UI ────────────────────────────────────────────────
 function setupChatbot() {
+    if (document.body.classList.contains("no-chatbot")) return;
     if (document.getElementById("chatbot-overlay")) return;
 
     const chatHTML = `
@@ -406,5 +477,120 @@ function setupChatbot() {
     });
 }
 
+
+
+async function checkAdminStatus() {
+
+    try {
+
+        const response = await fetch(
+            "/api/admin/check"
+        );
+
+        const data = await response.json();
+
+            if (data.loggedIn) {
+                if (adminBtn)
+                    adminBtn.style.display = "none";
+
+                if (guestbookLink)
+                    guestbookLink.style.display = "inline-block";
+
+                if (logoutHeaderBtn)
+                    logoutHeaderBtn.style.display = "inline-block";
+
+                if (mobileAdminBtn)
+                    mobileAdminBtn.style.display = "none";
+
+                if (mobileGuestbookLink)
+                    mobileGuestbookLink.style.display = "inline-block";
+
+                if (mobileLogoutBtn)
+                    mobileLogoutBtn.style.display = "inline-block";
+
+            } else {
+                if (adminBtn)
+                    adminBtn.style.display = "inline-block";
+
+                if (guestbookLink)
+                    guestbookLink.style.display = "none";
+
+                if (logoutHeaderBtn)
+                    logoutHeaderBtn.style.display = "none";
+
+                if (mobileAdminBtn)
+                    mobileAdminBtn.style.display = "inline-block";
+
+                if (mobileGuestbookLink)
+                    mobileGuestbookLink.style.display = "none";
+
+                if (mobileLogoutBtn)
+                    mobileLogoutBtn.style.display = "none";
+
+            }
+
+    } catch (err) {
+
+        console.error(err);
+
+    }
+
+}
+
+
+const mobileAdminBtn =
+document.getElementById("mobileAdminBtn");
+
+const mobileGuestbookLink =
+    document.getElementById("mobileGuestbookLink");
+
+const mobileLogoutBtn =
+    document.getElementById("mobileLogoutBtn");
+if (mobileAdminBtn) {
+    mobileAdminBtn.addEventListener(
+        "click",
+        () => {
+            adminModal.style.display = "block";
+        }
+    );
+}
+if (mobileLogoutBtn) {
+
+    mobileLogoutBtn.addEventListener(
+        "click",
+        async () => {
+
+            await fetch(
+                "/api/admin/logout",
+                {
+                    method: "POST"
+                }
+            );
+
+            window.location.reload();
+        }
+    );
+}
+
+
+    
+if (logoutHeaderBtn) {
+
+    async function handleLogout() {
+        await fetch(
+            "/api/admin/logout",
+            {
+                method: "POST"
+            }
+        );
+        window.location.reload();
+    }
+
+    logoutHeaderBtn.addEventListener("click", handleLogout);
+}
+
+
+
+checkAdminStatus();
 setupChatbot();
 })();

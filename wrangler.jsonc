@@ -17,6 +17,13 @@
 	"upload_source_maps": true,
 	"compatibility_flags": [
 		"nodejs_compat"
+	],
+	"d1_databases": [
+		{
+			"binding": "portfolio_db",
+			"database_name": "portfolio-db",
+			"database_id": "52418441-c437-4015-9247-ae4f8c97f7eb"
+		}
 	]
 	/**
 	 * Smart Placement

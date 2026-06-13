@@ -3,25 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Abubakar Portfolio | Contact</title>
-    <link rel="icon" href="../imgs/abu logo.png">
-    <link rel="stylesheet" href="contactpg.css">
-    <link rel="stylesheet" href="../chatbot.css">
+    <title>Guestbook</title>
+    <link rel="stylesheet" href="../homepg.css">
+    <link rel="stylesheet" href="guestbook.css">
 </head>
-<body>
-    
-    <!-- HEADER SECTIONNN -->
+<body class="no-chatbot">
+
     <header class="headercs">
         <nav class="navcs">
-            <a href="../index.html" >Home</a>
+            <a href="../index.html">Home</a>
             <a href="../Projects_/projectspg.html">Projects</a>
             <a href="../Journey/journeypg.html">Journey</a>
             <a href="../Blogpg/blogpg.html">Blogs</a>
-            <a href="contactpg.html" style="background-color: rgb(205, 205, 205);padding: 8px 18px;border-radius: 10px;margin-top: -7px;">Contact</a>
+            <a href="../Contact/contactpg.html">Contact</a>
         </nav>
         <div class="header-actions">
             <button id="adminBtn" style="display:none;">Admin</button>
-            <a id="guestbookLink" href="../Admin/guestbook.html" style="display:none;">Guestbook</a>
+            <a id="guestbookLink" href="guestbook.html" style="display:none;">Guestbook</a>
             <button id="logoutHeaderBtn" style="display:none;">Logout</button>
             <div class="theme-toggle">
                 <img style="width: 25px;" src="../imgs/light-svgrepo-com.svg" alt="">
@@ -58,7 +56,7 @@
                 <a
                     id="mobileGuestbookLink"
                     class="mobileGuestbookLinkclass"
-                    href="../Admin/guestbook.html"
+                    href="guestbook.html"
                     style="display:none;"
                 >
                     Guestbook
@@ -77,33 +75,15 @@
             </div>
         </details>
     </header>
+    <h1 class="guestbook-title">
+        Guestbook Messages
+    </h1>
 
-    <div class="midsection">
-        <img src="img/msgicon.png" alt="" width="70px">
-        <p style="font-size: 40px;">Contact</p>
-    </div>
+   
+    <div id="messages-container"></div>
 
-    <!-- Form Sectionnn -->
-     <form class="formcs" id="contactForm">
-        <p>Name</p>
-        <input type="text" placeholder="Enter your name" id="name" required>
-        <span class="error" id="nameError"></span>
-        <p>Email Address</p>
-        <input type="email" placeholder="youremail@awesome.com" id="email" required>
-        <span class="error" id="emailError"></span>
-        <p>Message</p>
-        <textarea placeholder="Enter your message" id="message" required></textarea>       
-        <span class="error" id="messageError"></span>
-        <button class="sendcs" id="sendBtn" type="submit">
-            <span  id="btnText">Send it my way</span>
-            <div class="loader" id="loader"></div>
-        </button>
-     </form>
-
-
-
-    <script src="script.js"></script>
     <script src="../prscript.js"></script>
-    <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "63edc74e28f8464387bbfd6cffca7742"}'></script><!-- End Cloudflare Web Analytics -->
+    <script src="guestbook.js"></script>
+
 </body>
 </html>

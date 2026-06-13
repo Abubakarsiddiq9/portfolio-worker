@@ -13,6 +13,7 @@ A responsive full-stack portfolio website showcasing my projects, skills, journe
 ### Backend
 
 * Cloudflare Workers
+* Cloudflare D1 Database
 
 ### Email Service
 
@@ -41,6 +42,12 @@ A responsive full-stack portfolio website showcasing my projects, skills, journe
 * Contact form with backend integration
 * Automated testing
 * CI/CD pipeline
+
+* Admin authentication using JWT
+* Protected admin guestbook dashboard
+* View contact form submissions
+* Delete guestbook messages
+* Dark mode support
 
 ## Chatbot
 
@@ -73,6 +80,30 @@ When a user submits the form:
 3. Resend is used to send the message to my email address.
 4. The Worker returns a success or failure JSON response.
 
+5. The message is stored in a Cloudflare D1 database.
+6. The Worker returns a success or failure JSON response.
+
+## Admin Guestbook
+
+The portfolio includes a protected admin guestbook for managing contact form submissions.
+
+### Features
+
+* Password-protected login
+* JWT authentication using secure HTTP-only cookies
+* Protected API routes
+* View all submitted contact messages
+* Delete messages from the dashboard
+* Responsive design for desktop and mobile
+
+### Authentication Flow
+
+1. Admin enters password.
+2. Worker validates password against Cloudflare secret.
+3. Worker creates a JWT token.
+4. JWT is stored in a secure HTTP-only cookie.
+5. Protected routes verify the JWT before returning data.
+
 ## API Endpoints
 
 | Endpoint | Method | Description |
@@ -80,6 +111,11 @@ When a user submits the form:
 | `/api/test` | GET | Health check |
 | `/api/contact` | POST | Sends contact form email via Resend |
 | `/api/chat` | POST | AI chatbot via Gemini API |
+| `/api/admin/login` | POST | Admin login |
+| `/api/admin/logout` | POST | Admin logout |
+| `/api/admin/check` | GET | Check admin session |
+| `/api/admin/messages` | GET | Fetch guestbook messages |
+| `/api/admin/messages/:id` | DELETE | Delete a guestbook message |
 
 ## Testing
 
@@ -123,6 +159,10 @@ portfolio-worker/
 │   ├── ci.yml          # Runs tests on every PR
 │   └── deploy.yml      # Deploys to Cloudflare on push to main
 ├── public/             # Static HTML, CSS, JS files
+│   ├── Admin/
+│   │   ├── guestbook.html
+│   │   ├── guestbook.css
+│   │   └── guestbook.js
 │   ├── tests/
 │   │   └── frontend.test.js
 │   ├── index.html
