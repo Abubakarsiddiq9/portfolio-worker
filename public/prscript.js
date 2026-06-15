@@ -367,42 +367,12 @@ function setupChatbot() {
         sendBtn.style.opacity = disabled ? "0.5" : "1";
     }
 
-    // ── CLIENT-SIDE RATE TRACKING ────────────────────────────────
-    // Tracks how many messages used within current 1hr window
-    // Uses localStorage so count persists across page navigations & reloads
-    // But server is still the real enforcer — this just syncs UI state
-    const RATE_WINDOW = 60 * 60 * 1000; // 1 hour in ms
-    const RATE_MAX = 20;
+  
+ 
 
-    function getRateData() {
-        try {
-            return JSON.parse(localStorage.getItem("cb_rate") || "{}");
-        } catch { return {}; }
-    }
-    function saveRateData(data) {
-        localStorage.setItem("cb_rate", JSON.stringify(data));
-    }
-    function incrementRateCount() {
-        const now = Date.now();
-        const data = getRateData();
-        // Reset if window has expired
-        if (!data.windowStart || now - data.windowStart > RATE_WINDOW) {
-            saveRateData({ windowStart: now, count: 1 });
-            return 1;
-        }
-        data.count = (data.count || 0) + 1;
-        saveRateData(data);
-        return data.count;
-    }
-    function getRemainingMessages() {
-        const now = Date.now();
-        const data = getRateData();
-        if (!data.windowStart || now - data.windowStart > RATE_WINDOW) return RATE_MAX;
-        return Math.max(0, RATE_MAX - (data.count || 0));
-    }
-
+   
     // Start in rate-limited mode if already exhausted from a previous visit
-    let rateLimited = getRemainingMessages() === 0;
+    let rateLimited = false;
 
     async function sendMessage(text) {
         const trimmed = text.trim();
@@ -426,16 +396,12 @@ function setupChatbot() {
             const reply = await askGemini(trimmed);
             removeTyping();
             appendMessage(reply, "bot");
-            // Increment client-side counter after successful AI reply
-            incrementRateCount();
-
+            
         } catch (err) {
             removeTyping();
 
             if (err.message === "RATE_LIMIT") {
                 rateLimited = true;
-                // Mark as fully used in localStorage so next visit knows
-                saveRateData({ windowStart: Date.now(), count: RATE_MAX });
                 appendDivider("⏳ AI limit reached — basic mode active. Come back in an hour for full AI responses.");
             } else {
                 appendDivider("⚡ AI temporarily unavailable — switching to basic mode.");

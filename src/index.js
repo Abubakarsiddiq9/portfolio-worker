@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import jwt from "jsonwebtoken";
-
+import { enforceRateLimit } from "./rateLimiter.js";
 
 
 const GEMINI_MODEL = "gemini-2.5-flash-lite";
@@ -69,6 +69,16 @@ const worker = {
         request.method === "POST"
         ) {
         try {
+            const limited =
+                await enforceRateLimit(
+                    request,
+                    env,
+                    "contact",
+                    5,
+                    3600
+                );
+
+                if (limited) return limited;
             const { name, email, message } = await request.json();
 
             if (!name || !email || !message) {
@@ -80,19 +90,15 @@ const worker = {
                 { status: 400 }
             );
             }
-            console.log("Has RESEND key:", !!env.RESEND_API_KEY);
-            console.log("Has EMAIL:", !!env.EMAIL);
             const resend = new Resend(env.RESEND_API_KEY);
 
             await resend.emails.send({
-            from: "onboarding@resend.dev",
-            to: env.EMAIL,
-            subject: `Portfolio Contact from ${name}`,
-            text: `Name: ${name}
-        Email: ${email}
-
-        Message:
-        ${message}`
+                from: "onboarding@resend.dev",
+                to: env.EMAIL,
+                subject: `Portfolio Contact from ${name}`,
+                text: `Name: ${name}
+                Email: ${email}
+                Message: ${message}`
             });
             await env.portfolio_db
                 .prepare(`
@@ -123,6 +129,18 @@ const worker = {
         request.method === "POST"
         ) {
         try {
+
+            const limited =
+                await enforceRateLimit(
+                    request,
+                    env,
+                    "login",
+                    5,
+                    900
+                );
+
+                if (limited) return limited;
+
             const { password } = await request.json();
 
             if (password !== env.ADMIN_PASSWORD) {
@@ -170,6 +188,17 @@ const worker = {
         url.pathname === "/api/admin/logout" &&
         request.method === "POST"
     ) {
+
+        const limited =
+            await enforceRateLimit(
+                request,
+                env,
+                "logout",
+                20,
+                3600
+            );
+
+            if (limited) return limited;
         return Response.json(
             {
                 success: true
@@ -188,6 +217,16 @@ const worker = {
         url.pathname === "/api/admin/check" &&
         request.method === "GET"
     ) {
+        const limited =
+            await enforceRateLimit(
+                request,
+                env,
+                "admin-check",
+                60,
+                60
+            );
+
+            if (limited) return limited;
         const admin = verifyAdmin(
             request,
             env.JWT_SECRET
@@ -205,6 +244,16 @@ const worker = {
         request.method === "GET"
         ) {
         try {
+            const limited =
+                await enforceRateLimit(
+                    request,
+                    env,
+                    "messages",
+                    60,
+                    60
+                );
+
+                if (limited) return limited;
             const admin = verifyAdmin(
             request,
             env.JWT_SECRET
@@ -250,6 +299,16 @@ const worker = {
         request.method === "DELETE"
     ) {
         try {
+            const limited =
+                await enforceRateLimit(
+                    request,
+                    env,
+                    "delete-message",
+                    30,
+                    60
+                );
+
+                if (limited) return limited;
 
             const admin = verifyAdmin(
                 request,
@@ -298,6 +357,18 @@ const worker = {
     request.method === "POST"
     ) {
     try {
+        // rate limit function
+        const limited =
+            await enforceRateLimit(
+                request,
+                env,
+                "chat",
+                20,
+                3600
+            );
+
+            if (limited) return limited;
+
         const { history } = await request.json();
 
         if (
