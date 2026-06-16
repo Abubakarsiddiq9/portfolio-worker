@@ -25,7 +25,7 @@ export async function checkRateLimit(
     key,
     String(count),
     {
-      expirationTtl: windowSeconds //Sliding Window
+      expirationTtl: windowSeconds //Fixed Window Because the counter exists for a fixed period, System DON'T remembers timestamps!!
     }
   );
 

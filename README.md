@@ -61,10 +61,10 @@ A chatbot on my portfolio that answers questions about me — my skills, educati
 * Gemini generates a natural response and sends it back
 
 **Rate limiting:**
-The Worker limits each user to 20 messages per hour. If they hit the limit, the chatbot switches to a predefined keyword-based fallback so they still get answers without consuming any API quota.
+The Worker limits each user to 20 messages per hour using server-side rate limiting powered by Cloudflare KV. Requests are tracked by client IP address. If the limit is reached, the chatbot automatically switches to a predefined keyword-based fallback so users can still get answers without consuming any AI API quota.
 
 **Message persistence:**
-Chat messages are saved in `sessionStorage` — so if you navigate to another page and come back, your conversation is still there. But when you close the tab, it clears. The rate limit count is saved in `localStorage` separately, so it persists across page navigations for the full hour window.
+Chat messages are saved in `sessionStorage`, so conversations remain available while navigating between pages during the same browser session. When the tab is closed, the chat history is cleared. Rate limiting is enforced server-side and is not stored in the browser.
 
 **Fallback mode:**
 If the AI is down or the limit is hit, it falls back to keyword matching. Zero API calls, zero cost.

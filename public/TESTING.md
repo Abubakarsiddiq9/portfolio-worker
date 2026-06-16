@@ -168,7 +168,8 @@ The following functionality was manually verified:
 * AI responses display correctly
 * Fallback mode activates when limit is reached
 * Messages persist across page navigation (sessionStorage)
-* Rate limit persists across page reloads (localStorage)
+* Server-side rate limiting enforced using Cloudflare KV
+* Rate limit verified across page reloads and browser sessions
 
 ### Theme Toggle
 * Light mode
