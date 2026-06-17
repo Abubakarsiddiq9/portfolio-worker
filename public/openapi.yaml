@@ -1,0 +1,145 @@
+openapi: 3.0.3
+
+info:
+  title: Abubakar Portfolio API
+  description: Public API for portfolio blog posts and GitHub repositories.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8787
+
+paths:
+
+  /api/posts:
+    get:
+      summary: Get all blog posts
+
+      responses:
+        "200":
+          description: List of blog posts
+
+          content:
+            application/json:
+              schema:
+                type: array
+
+                items:
+                  $ref: "#/components/schemas/Post"
+
+  /api/posts/{slug}:
+    get:
+      summary: Get a single blog post
+
+      parameters:
+        - name: slug
+          in: path
+          required: true
+
+          schema:
+            type: string
+
+      responses:
+
+        "200":
+          description: Blog post found
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Post"
+
+        "404":
+          description: Blog post not found
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /api/github/repos:
+    get:
+      summary: Get public GitHub repositories
+
+      responses:
+
+        "200":
+          description: Repository list
+
+          content:
+            application/json:
+              schema:
+                type: object
+
+                properties:
+
+                  success:
+                    type: boolean
+
+                  repos:
+                    type: array
+
+                    items:
+                      $ref: "#/components/schemas/Repository"
+
+        "502":
+          description: GitHub service unavailable
+
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+
+  schemas:
+
+    Post:
+      type: object
+
+      properties:
+
+        slug:
+          type: string
+
+        title:
+          type: string
+
+        publishedAt:
+          type: string
+
+        description:
+          type: string
+
+        content:
+          type: string
+
+    Repository:
+      type: object
+
+      properties:
+
+        name:
+          type: string
+
+        description:
+          type: string
+
+        stars:
+          type: integer
+
+        language:
+          type: string
+
+        url:
+          type: string
+
+    Error:
+      type: object
+
+      properties:
+
+        success:
+          type: boolean
+
+        message:
+          type: string
