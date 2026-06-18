@@ -52,9 +52,12 @@ This prevents the Projects page from crashing when GitHub is unavailable.
 
 ## Caching Strategy
 
-Currently GitHub repository data is fetched live.
+GitHub repository data is cached using the Cloudflare Cache API for 5 minutes.
 
-No caching layer is used.
+This means:
+- First request → fetches from GitHub API, stores in cache
+- Next requests within 5 minutes → served from cache instantly
+- After 5 minutes → cache expires, fresh fetch from GitHub
 
-Future improvement:
-Cloudflare KV or Cache API could be used to reduce requests and improve response times.
+Why 5 minutes: GitHub repos don't change frequently.
+A short TTL keeps data reasonably fresh without hitting GitHub rate limits.

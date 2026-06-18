@@ -119,10 +119,12 @@ async function loadGithubRepos() {
     } catch (err) {
 
         repoCount.textContent = "";
-
+        // Fallback when GitHub is down. Degrades gracefully instead of breaking the page.
         reposGrid.innerHTML = `
-            <p>
-                Unable to load repositories.
+            <p>Unable to load repositories right now. 
+               <a href="https://github.com/Abubakarsiddiq9" target="_blank">
+                   View on GitHub directly
+               </a>
             </p>
         `;
     }

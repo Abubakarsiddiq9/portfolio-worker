@@ -65,4 +65,4 @@ Responsible for:
 
 See diagram below.
 
-![Architecture](docs/architecture.png)
+![Architecture](docs/Hldiag.drawio.png)

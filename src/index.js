@@ -470,32 +470,37 @@ const worker = {
             return Response.json(post);
         }
 
-        if (
-            url.pathname === "/api/github/repos" &&
-            request.method === "GET"
-        ) {
-            try {
-                const repos =
-                    await getGithubRepos();
-
-                return Response.json({
-                    success: true,
-                    repos
-                });
-
-            } catch (err) {
-
-                return Response.json(
-                {
-                    success: false,
-                    error: err.message
-                },
-                {
-                    status: 502
-                }
-            );
-            }
+    if (url.pathname === "/api/github/repos" && request.method === "GET") {
+        
+        // Check cache first
+        const cache = caches.default;
+        const cacheKey = new Request("https://cache.local/github-repos");
+        const cached = await cache.match(cacheKey);
+        
+        if (cached) {
+            return cached; // return cached response instantly
         }
+
+        try {
+            const repos = await getGithubRepos();
+            const response = Response.json({ success: true, repos });
+
+            // Store in cache for 5 minutes
+            const cacheResponse = Response.json(
+                { success: true, repos },
+                { headers: { "Cache-Control": "public, max-age=300" } }
+            );
+            await cache.put(cacheKey, cacheResponse);
+
+            return Response.json({ success: true, repos });
+
+        } catch (err) {
+            return Response.json(
+                { success: false, error: err.message },
+                { status: 502 }
+            );
+        }
+    }
 
         return new Response("Not Found", {
             status: 404
