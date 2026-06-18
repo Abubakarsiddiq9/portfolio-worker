@@ -25,7 +25,8 @@ export async function checkRateLimit(
     key,
     String(count),
     {
-      expirationTtl: windowSeconds //Fixed Window Because the counter exists for a fixed period, System DON'T remembers timestamps!!
+      expirationTtl: windowSeconds //Fixed Window Because the counter exists for a fixed period, System DON'T remembers timestamps!! like Request 1 at 2:01,Request 2 at 2:15
+
     }
   );
 
@@ -45,7 +46,7 @@ export async function enforceRateLimit(
     request.headers.get("CF-Connecting-IP")
     || "unknown";
 
-  const key = `${route}:${ip}`;
+  const key = `${route}:${ip}`; //chat:192.168.1.1 = 19
 
   const result =
     await checkRateLimit(
