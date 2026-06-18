@@ -37,3 +37,24 @@ AI was used as a development assistant for:
 * Assistance with admin dashboard implementation
 * Assistance with guestbook UI responsiveness
 * Assistance with protected route implementation
+
+## External API Failure Strategy
+
+GitHub repositories are fetched through the Cloudflare Worker.
+
+If GitHub returns an error or is unavailable:
+
+- Worker returns HTTP 502
+- Frontend displays a fallback message
+- Portfolio page continues functioning
+
+This prevents the Projects page from crashing when GitHub is unavailable.
+
+## Caching Strategy
+
+Currently GitHub repository data is fetched live.
+
+No caching layer is used.
+
+Future improvement:
+Cloudflare KV or Cache API could be used to reduce requests and improve response times.
