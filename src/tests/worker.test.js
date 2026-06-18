@@ -67,6 +67,16 @@ global.fetch = jest.fn((url) => {
 
 });
 
+// Mock Cloudflare Cache API
+const mockCache = {
+    match: jest.fn().mockResolvedValue(null), // cache miss by default
+    put: jest.fn().mockResolvedValue(undefined)
+};
+
+global.caches = {
+    default: mockCache
+};
+
 // ── Import worker after mocks are set up ──────────────────────
 const worker = require("../index.js");
 
