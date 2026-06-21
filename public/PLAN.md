@@ -66,6 +66,9 @@ A contact form that allows visitors to send messages directly to me.
 * Contact form with backend integration
 * Automated testing
 * CI/CD pipeline
+* Admin authentication
+* Guestbook management dashboard
+* Cloudflare D1 database integration
 
 ---
 
@@ -73,7 +76,6 @@ A contact form that allows visitors to send messages directly to me.
 
 To keep the project focused and lightweight, the following features were intentionally excluded:
 
-* Authentication / Login System
 * Complex animations
 * 3D effects and designs
 * Large frontend frameworks such as React
@@ -90,6 +92,9 @@ At the start of the project, the following areas were unfamiliar:
 * Email service integration
 * CI/CD setup using GitHub Actions
 * Gemini API integration
+* JWT authentication
+* Cloudflare D1 database
+* Protected admin routes
 
 ---
 
@@ -100,6 +105,34 @@ At the start of the project, the following areas were unfamiliar:
 Plain HTML, CSS, and JavaScript files served from the `public/` directory via Cloudflare Workers assets.
 
 No static site generator was used. Plain HTML was chosen to keep the project simple and focused on core web fundamentals.
+
+### Admin Authentication
+
+The admin dashboard is protected using JWT authentication.
+
+Workflow:
+
+1. Admin enters password.
+2. Worker validates password against ADMIN_PASSWORD secret.
+3. JWT token is generated.
+4. JWT is stored in an HTTP-only cookie.
+5. Protected routes verify the token before returning data.
+
+### Database
+
+Cloudflare D1 is used to store contact form submissions.
+
+Table:
+
+contacts
+
+Fields:
+
+* id
+* name
+* email
+* message
+* submitted_at
 
 ### API Routes
 
@@ -116,6 +149,8 @@ All sensitive keys are stored as Cloudflare Worker secrets:
 * `RESEND_API_KEY`
 * `EMAIL`
 * `GEMINI_API_KEY`
+* ADMIN_PASSWORD
+* JWT_SECRET
 
 ---
 

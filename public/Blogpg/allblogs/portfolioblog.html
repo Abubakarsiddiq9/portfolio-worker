@@ -59,7 +59,14 @@
 </p>
 
 <p>
-    Chat history is stored using <code>sessionStorage</code>, allowing conversations to remain available while navigating between pages. The rate-limit counter is stored separately using <code>localStorage</code>.
+    Chat history is stored using
+    <code>sessionStorage</code>,
+    allowing conversations to remain available
+    while navigating between pages.
+
+    Rate limiting is enforced server-side using
+    Cloudflare KV, preventing users from bypassing
+    limits through browser tools or direct API requests.
 </p>
 
 <p class="sidehead">
@@ -131,6 +138,5 @@
     </div>
 
     <script src="blogpg.js"></script>
-    <script src="../../prscript.js"></script>
 </body>
 </html>

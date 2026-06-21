@@ -13,6 +13,7 @@ A responsive full-stack portfolio website showcasing my projects, skills, journe
 ### Backend
 
 * Cloudflare Workers
+* Cloudflare D1 Database
 
 ### Email Service
 
@@ -42,6 +43,12 @@ A responsive full-stack portfolio website showcasing my projects, skills, journe
 * Automated testing
 * CI/CD pipeline
 
+* Admin authentication using JWT
+* Protected admin guestbook dashboard
+* View contact form submissions
+* Delete guestbook messages
+* Dark mode support
+
 ## Chatbot
 
 **What it is:**
@@ -54,10 +61,10 @@ A chatbot on my portfolio that answers questions about me — my skills, educati
 * Gemini generates a natural response and sends it back
 
 **Rate limiting:**
-The Worker limits each user to 20 messages per hour. If they hit the limit, the chatbot switches to a predefined keyword-based fallback so they still get answers without consuming any API quota.
+The Worker limits each user to 20 messages per hour using server-side rate limiting powered by Cloudflare KV. Requests are tracked by client IP address. If the limit is reached, the chatbot automatically switches to a predefined keyword-based fallback so users can still get answers without consuming any AI API quota.
 
 **Message persistence:**
-Chat messages are saved in `sessionStorage` — so if you navigate to another page and come back, your conversation is still there. But when you close the tab, it clears. The rate limit count is saved in `localStorage` separately, so it persists across page navigations for the full hour window.
+Chat messages are saved in `sessionStorage`, so conversations remain available while navigating between pages during the same browser session. When the tab is closed, the chat history is cleared. Rate limiting is enforced server-side and is not stored in the browser.
 
 **Fallback mode:**
 If the AI is down or the limit is hit, it falls back to keyword matching. Zero API calls, zero cost.
@@ -73,6 +80,30 @@ When a user submits the form:
 3. Resend is used to send the message to my email address.
 4. The Worker returns a success or failure JSON response.
 
+5. The message is stored in a Cloudflare D1 database.
+6. The Worker returns a success or failure JSON response.
+
+## Admin Guestbook
+
+The portfolio includes a protected admin guestbook for managing contact form submissions.
+
+### Features
+
+* Password-protected login
+* JWT authentication using secure HTTP-only cookies
+* Protected API routes
+* View all submitted contact messages
+* Delete messages from the dashboard
+* Responsive design for desktop and mobile
+
+### Authentication Flow
+
+1. Admin enters password.
+2. Worker validates password against Cloudflare secret.
+3. Worker creates a JWT token.
+4. JWT is stored in a secure HTTP-only cookie.
+5. Protected routes verify the JWT before returning data.
+
 ## API Endpoints
 
 | Endpoint | Method | Description |
@@ -80,6 +111,11 @@ When a user submits the form:
 | `/api/test` | GET | Health check |
 | `/api/contact` | POST | Sends contact form email via Resend |
 | `/api/chat` | POST | AI chatbot via Gemini API |
+| `/api/admin/login` | POST | Admin login |
+| `/api/admin/logout` | POST | Admin logout |
+| `/api/admin/check` | GET | Check admin session |
+| `/api/admin/messages` | GET | Fetch guestbook messages |
+| `/api/admin/messages/:id` | DELETE | Delete a guestbook message |
 
 ## Testing
 
@@ -123,6 +159,10 @@ portfolio-worker/
 │   ├── ci.yml          # Runs tests on every PR
 │   └── deploy.yml      # Deploys to Cloudflare on push to main
 ├── public/             # Static HTML, CSS, JS files
+│   ├── Admin/
+│   │   ├── guestbook.html
+│   │   ├── guestbook.css
+│   │   └── guestbook.js
 │   ├── tests/
 │   │   └── frontend.test.js
 │   ├── index.html

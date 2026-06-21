@@ -32,3 +32,8 @@ AI was used as a development assistant for:
 * Assisting with automated testing using Jest and Supertest
 * Providing guidance during deployment and CI/CD setup
 * Reviewing code and helping debug issues
+* Guidance for JWT authentication
+* Guidance for Cloudflare D1 integration
+* Assistance with admin dashboard implementation
+* Assistance with guestbook UI responsiveness
+* Assistance with protected route implementation

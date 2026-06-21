@@ -41,7 +41,20 @@ function makeRequest(path, method = "GET", body = null) {
 const mockEnv = {
     RESEND_API_KEY: "mock-resend-key",
     EMAIL: "test@example.com",
-    GEMINI_API_KEY: "mock-gemini-key"
+    GEMINI_API_KEY: "mock-gemini-key",
+
+    RATE_LIMITS: {
+        get: jest.fn().mockResolvedValue(null),
+        put: jest.fn().mockResolvedValue(undefined)
+    },
+
+    portfolio_db: {
+        prepare: jest.fn().mockReturnValue({
+            bind: jest.fn().mockReturnValue({
+                run: jest.fn().mockResolvedValue({})
+            })
+        })
+    }
 };
 
 // ── /api/test ─────────────────────────────────────────────────

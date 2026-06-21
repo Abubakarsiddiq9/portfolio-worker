@@ -58,6 +58,119 @@ p {
     cursor: pointer;
 }
 
+/* ADMINNN CSSS */
+.admin-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+}
+
+.admin-modal-content {
+    background: white;
+    padding: 24px;
+    width: min(90%, 360px);
+    margin: 90px auto;
+    border-radius: 18px;
+    box-shadow: 0 24px 40px rgba(0, 0, 0, 0.14);
+}
+.admin-modal-content input {
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: none;
+    background-color: #f4f4f4;
+    color: #111;
+    font-size: 16px;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+.admin-modal-content button {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 12px 18px;
+    border: none;
+    border-radius: 14px;
+    background-color: #111;
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.16);
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-modal-content button:hover {
+    transform: translateY(-1px);
+    background-color: #222;
+}
+
+.admin-modal-content button:active {
+    transform: scale(0.98);
+}
+
+body.dark-mode .admin-modal-content {
+    background: #111;
+    color: white;
+}
+body.dark-mode .admin-modal-content input{
+      background-color: #454545;
+      color: #e2e2e2;
+}
+body.dark-mode .admin-modal-content button{
+  background-color: white;
+  color: black;
+}
+
+.header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    justify-self: end;
+}
+
+#adminBtn,
+#logoutHeaderBtn,
+#guestbookLink {
+    border: none;
+    background-color: #111;
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: 10px;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.12);
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#adminBtn:hover,
+#logoutHeaderBtn:hover,
+#guestbookLink:hover {
+    transform: translateY(-1px);
+    background-color: #262626;
+}
+
+body.dark-mode #adminBtn,
+body.dark-mode #logoutHeaderBtn,
+body.dark-mode #guestbookLink {
+    background-color: #222;
+    color: #fff;
+    box-shadow: 0 10px 18px rgba(255, 255, 255, 0.08);
+}
+
+body.dark-mode #adminBtn:hover,
+body.dark-mode #logoutHeaderBtn:hover,
+body.dark-mode #guestbookLink:hover {
+    background-color: #333;
+}
+
+
+
+
+
 .theme-toggle{
     cursor: pointer;
     width: 38px;
@@ -118,6 +231,87 @@ body.dark-mode img {
     transform: scale(0.95);
 }
 
+.resume-div {
+    margin-top: 18px;
+}
+
+.resume-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px 28px;
+
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #1d4ed8
+    );
+
+    color: white;
+    text-decoration: none;
+
+    font-size: 18px;
+    font-weight: 600;
+
+    border: none;
+    border-radius: 12px;
+
+    box-shadow:
+        0 8px 20px rgba(37, 99, 235, 0.25);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease,
+        filter 0.25s ease;
+}
+
+.resume-btn:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 12px 28px rgba(37, 99, 235, 0.35);
+
+    filter: brightness(1.05);
+}
+
+.resume-btn:active {
+    transform: translateY(0);
+}
+/* Tablet */
+@media (max-width: 768px) {
+
+    .resume-div {
+        margin-top: 16px;
+    }
+
+    .resume-btn {
+        padding: 11px 24px;
+        font-size: 17px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+
+    .resume-div {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .resume-btn {
+        width: 100%;
+        max-width: 280px;
+
+        justify-content: center;
+
+        padding: 12px 20px;
+
+        font-size: 16px;
+    }
+}
+
 .bodyimg{
     justify-content: end;
     width: 400px;
@@ -128,6 +322,7 @@ body.dark-mode img {
     box-shadow: 0 0 10px #2563eb;
 
 }
+
 
 
 .whomics{
@@ -191,6 +386,9 @@ body.dark-mode img {
         align-items: center;
         gap: 8px;
     }
+    .header-actions {
+      display: none;
+    }
 
     .navcs {
         flex-wrap: wrap;
@@ -216,6 +414,18 @@ body.dark-mode img {
         margin-right: 0;
         width: 36px;
         height: 36px;
+    }
+
+    .header-actions {
+        width: 100%;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .header-actions button,
+    .header-actions a#guestbookLink {
+        width: auto;
     }
 
     .theme-toggle img {
@@ -316,6 +526,24 @@ body.dark-mode img {
         cursor: pointer;
     }
 
+    .mobile-dropdown-content button{
+        padding: 5px;
+        border-radius: 5px;
+        color: white;
+        background-color: black;
+    }
+    .mobileGuestbookLinkclass{
+        padding: 5px;
+        border-radius: 5px;
+        color: white;
+        background-color: black;
+    }
+    
+    body.dark-mode .mobileGuestbookLinkclass,body.dark-mode .mobile-dropdown button{
+        color: black;
+        background-color: white;
+    }
+
     body.dark-mode .mobile-dropdown {
         background-color: rgb(0, 0, 0);
     }
@@ -382,6 +610,41 @@ body.dark-mode img {
     .mobile-dropdown-content a:hover,
     .mobile-dropdown-content a:first-child {
         background-color: rgb(205, 205, 205);
+    }
+
+    .mobile-dropdown button {
+        padding: 5px;
+        border-radius: 5px;
+        color: white;
+        background-color: black;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        width: 100%;
+        text-align: center;
+    }
+
+    .mobileGuestbookLinkclass {
+        padding: 5px;
+        border-radius: 5px;
+        color: white;
+        background-color: black;
+        border: none;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: block;
+        width: 100%;
+        text-align: center;
+    }
+
+    body.dark-mode .mobileGuestbookLinkclass,
+    body.dark-mode .mobile-dropdown button {
+        color: black;
+        background-color: white;
     }
 
     .mobile-theme-toggle {
