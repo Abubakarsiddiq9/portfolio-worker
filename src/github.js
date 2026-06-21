@@ -3,7 +3,7 @@ export async function getGithubRepos() {
             "https://api.github.com/users/Abubakarsiddiq9/repos",
             {
                 headers: {
-                    "User-Agent":
+                    "User-Agent": //github requires user-agent for API req
                         "Abubakar-Portfolio"
                 }
             }
@@ -33,7 +33,7 @@ export async function getGithubRepos() {
                 b.stargazers_count -
                 a.stargazers_count
         )
-        .map(repo => ({
+        .map(repo => ({ //This is API design.
             name: repo.name,
             description: repo.description,
             stars: repo.stargazers_count,
