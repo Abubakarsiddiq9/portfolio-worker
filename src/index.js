@@ -1,7 +1,8 @@
 import { Resend } from "resend";
 import jwt from "jsonwebtoken";
+import { posts } from "./data/posts";
 import { enforceRateLimit } from "./rateLimiter.js";
-
+import { getGithubRepos } from "./github.js";
 
 const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
@@ -50,6 +51,9 @@ function verifyAdmin(request, jwtSecret) {
     return null;
   }
 }
+
+// THis Is BackenddD
+
 const worker = {
     
   async fetch(request, env) {
@@ -351,7 +355,6 @@ const worker = {
         }
     }
 
-
     if (
     url.pathname === "/api/chat" &&
     request.method === "POST"
@@ -432,6 +435,76 @@ const worker = {
             );
         }
         }
+    
+        // Get all posts
+
+        if (
+        url.pathname === "/api/posts" &&
+        request.method === "GET"
+        ) {
+        return Response.json(posts);
+        }
+        
+        // Get one post GET /api/posts/:slug slug is replaced with a var (stored in data/posts.js)
+        if (
+            url.pathname.startsWith("/api/posts/") &&
+            request.method === "GET"
+        ) {
+            const slug =
+                url.pathname.split("/").pop();
+
+            const post =
+                posts.find(
+                    p => p.slug === slug
+                );
+
+            if (!post) {
+                return Response.json(
+                    {
+                        success: false,
+                        message: "Post not found"
+                    },
+                    {
+                        status: 404
+                    }
+                );
+            }
+
+            return Response.json(post);
+        }
+
+    if (url.pathname === "/api/github/repos" && request.method === "GET") {
+        
+        // Check cache first
+        const cache = caches.default;
+        const cacheKey = new Request("https://cache.local/github-repos");
+        const cached = await cache.match(cacheKey);
+        
+        if (cached) {
+            return cached; // return cached response instantly
+        }
+
+        try {
+            const repos = await getGithubRepos();
+            const response = Response.json({ success: true, repos });
+
+            // Store in cache for 5 minutes
+            const cacheResponse = Response.json(
+                { success: true, repos },
+                { headers: { "Cache-Control": "public, max-age=300" } }
+            );
+            await cache.put(cacheKey, cacheResponse);
+
+            return Response.json({ success: true, repos });
+
+        } catch (err) {
+            return Response.json(
+                { success: false, error: err.message },
+                { status: 502 }
+            );
+        }
+    }
+
         return new Response("Not Found", {
             status: 404
         });

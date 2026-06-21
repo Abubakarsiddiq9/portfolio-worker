@@ -185,3 +185,25 @@ portfolio-worker/
 * **Journey Page:** Shows my learning journey and milestones
 * **Blog Page:** Contains articles and updates
 * **Contact Page:** Allows visitors to send messages directly to my email
+
+# API
+
+## GET /api/posts
+
+Returns all blog posts.
+
+## GET /api/posts/{slug}
+
+Returns a single blog post.
+
+## GET /api/github/repos
+
+Returns live GitHub repositories.
+
+## POST /api/contact
+
+Submits contact form.
+
+## POST /api/chat
+
+Portfolio chatbot endpoint.

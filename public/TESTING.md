@@ -175,3 +175,24 @@ The following functionality was manually verified:
 * Light mode
 * Dark mode
 * Theme preference saved across sessions
+
+### GET /api/posts
+
+Test:
+- Returns all blog posts
+- Status 200
+
+### GET /api/posts/{slug}
+
+Test 1:
+- Returns matching post
+- Status 200
+
+Test 2:
+- Returns 404 for invalid slug
+
+### GET /api/github/repos
+
+Test:
+- Returns repository list
+- Status 200

@@ -80,6 +80,48 @@
     <!-- Heading -->
      <p style="margin-top: 180px; font-size: 35px;">My Projects</p>
 
+     <p class="explore-text" style="font-size: 26px;margin-top: 28px;align-self: flex-start;margin-left: 29px;">Explore all my public repositories and latest work on GitHub.</p>
+     <!-- GitHub section -->
+    <div class="github-section"
+        style="
+            margin-top:60px;
+            margin-left: 50px;            
+            align-self: flex-start;
+            "
+    >
+        <button
+            id="viewReposBtn"
+
+            class="Github_btn"
+        >
+            View Live GitHub Repositories
+        </button>
+        <div id="reposModal" class="repos-modal">
+
+            <div class="repos-modal-content">
+
+                <button
+                    id="closeReposBtn"
+                    class="close-modal-btn"
+                >
+                    ✕
+                </button>
+
+                <h2>
+                    Live GitHub Repositories
+                </h2>
+
+                <p id="repoCount"></p>
+
+                <div id="githubReposGrid">
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
      <div class="featuredpr">
         <p style="font-size: 30px;margin-bottom: 50px;margin-top: 20px;">Featured Project</p>
         <div class="feature_card">
@@ -163,7 +205,12 @@
         </div>
     </div>
 
+    
+
+  
+
 
     <script src="../prscript.js"></script>
+    <script src="githubRepos.js"></script>
 </body>
 </html>

@@ -11,17 +11,71 @@ jest.mock("resend", () => {
     };
 });
 
-// ── Mock fetch (Gemini API call) ──────────────────────────────
-global.fetch = jest.fn().mockResolvedValue({
-    ok: true,
-    json: async () => ({
-        candidates: [{
-            content: {
-                parts: [{ text: "I am Abubakar's portfolio assistant." }]
-            }
-        }]
-    })
+// ── Mock fetch (Gemini API call & GitHub) ──────────────────────────────
+global.fetch = jest.fn((url) => {
+
+    // Gemini API
+
+    if (
+        typeof url === "string" &&
+        url.includes(
+            "generativelanguage.googleapis.com"
+        )
+    ) {
+
+        return Promise.resolve({
+            ok: true,
+            json: async () => ({
+                candidates: [{
+                    content: {
+                        parts: [{
+                            text:
+                                "I am Abubakar's portfolio assistant."
+                        }]
+                    }
+                }]
+            })
+        });
+    }
+
+    // GitHub API
+
+    if (
+        typeof url === "string" &&
+        url.includes("api.github.com")
+    ) {
+
+        return Promise.resolve({
+            ok: true,
+            json: async () => ([
+                {
+                    name: "portfolio-worker",
+                    description:
+                        "Portfolio project",
+                    stargazers_count: 5,
+                    language: "JavaScript",
+                    html_url:
+                        "https://github.com/test/repo"
+                }
+            ])
+        });
+    }
+
+    return Promise.reject(
+        new Error("Unknown fetch")
+    );
+
 });
+
+// Mock Cloudflare Cache API
+const mockCache = {
+    match: jest.fn().mockResolvedValue(null), // cache miss by default
+    put: jest.fn().mockResolvedValue(undefined)
+};
+
+global.caches = {
+    default: mockCache
+};
 
 // ── Import worker after mocks are set up ──────────────────────
 const worker = require("../index.js");
@@ -139,4 +193,104 @@ describe("Unknown route", () => {
         expect(res.status).toBe(404);
     });
 });
+
+// ── /api/posts ─────────────────────────────────────────────
+
+describe("GET /api/posts", () => {
+
+    test("returns all blog posts", async () => {
+
+        const req = makeRequest("/api/posts");
+
+        const res =
+            await worker.default.fetch(
+                req,
+                mockEnv
+            );
+
+        const data =
+            await res.json();
+
+        expect(res.status).toBe(200);
+        expect(Array.isArray(data)).toBe(true);
+    });
+
+});
+
+
+// ── /api/posts/:slug ───────────────────────────────────────
+
+describe("GET /api/posts/:slug", () => {
+
+    test("returns one blog post", async () => {
+
+        const req =
+            makeRequest(
+                "/api/posts/abubakar-portfolio"
+            );
+
+        const res =
+            await worker.default.fetch(
+                req,
+                mockEnv
+            );
+
+        const data =
+            await res.json();
+
+        expect(res.status).toBe(200);
+        expect(data.slug)
+            .toBe("abubakar-portfolio");
+    });
+
+    test("returns 404 for invalid slug", async () => {
+
+        const req =
+            makeRequest(
+                "/api/posts/not-found"
+            );
+
+        const res =
+            await worker.default.fetch(
+                req,
+                mockEnv
+            );
+
+        expect(res.status).toBe(404);
+    });
+
+});
+
+// ── /api/github/repos ─────────────────────────────────────
+
+describe("GET /api/github/repos", () => {
+
+    test("returns GitHub repositories", async () => {
+
+        const req =
+            makeRequest(
+                "/api/github/repos"
+            );
+
+        const res =
+            await worker.default.fetch(
+                req,
+                mockEnv
+            );
+
+        const data =
+            await res.json();
+
+        expect(res.status).toBe(200);
+
+        expect(data.success)
+            .toBe(true);
+
+        expect(
+            Array.isArray(data.repos)
+        ).toBe(true);
+    });
+
+});
+
 // Note to Abubakar: this is already fixed above
