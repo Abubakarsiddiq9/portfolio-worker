@@ -6,7 +6,9 @@
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
     "start": "wrangler dev",
-    "test": "jest"
+    "test": "jest",
+    "evals": "node src/evals/runMockEvals.js",
+    "evals:real": "node src/evals/runRealEvals.js"
   },
   "jest": {
     "testEnvironment": "node",

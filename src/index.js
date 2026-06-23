@@ -3,34 +3,10 @@ import jwt from "jsonwebtoken";
 import { posts } from "./data/posts";
 import { enforceRateLimit } from "./rateLimiter.js";
 import { getGithubRepos } from "./github.js";
-import { RESUME_CONTEXT } from "./data/resume.js";
+import { generateReply } from "./chatbot.js";
 
-const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
-const SYSTEM_PROMPT = `
-You are a friendly portfolio assistant for Mohammed Abubakar Siddiq.
 
-Answer questions using ONLY the resume information provided below.
-
-Rules:
-Important Behavior Rules:
-
-1. Use only the provided resume information.
-2. Do not invent facts.
-3. Do not guess missing information.
-4. If a question cannot be answered from the resume, say:
-   "I don't have that information in my resume data."
-5. Do not claim experience, jobs, companies, skills, education, certifications, or projects that are not explicitly listed.
-6. Keep answers between 2 and 4 sentences.
-7. Respond in the same language as the user.
-
-If asked whether you are AI, Gemini-powered, or how you work:
-Confirm that you are an AI assistant powered by Google Gemini and that Abubakar integrated the Gemini API into his portfolio.
-
-Resume Information:
-
-${RESUME_CONTEXT}
-`;
 
 
 
@@ -87,7 +63,7 @@ const worker = {
                     3600
                 );
 
-                if (limited) return limited;
+            if (limited) return limited;
             const { name, email, message } = await request.json();
 
             if (!name || !email || !message) {
@@ -148,7 +124,7 @@ const worker = {
                     900
                 );
 
-                if (limited) return limited;
+            if (limited) return limited;
 
             const { password } = await request.json();
 
@@ -207,7 +183,7 @@ const worker = {
                 3600
             );
 
-            if (limited) return limited;
+        if (limited) return limited;
         return Response.json(
             {
                 success: true
@@ -235,7 +211,7 @@ const worker = {
                 60
             );
 
-            if (limited) return limited;
+        if (limited) return limited;
         const admin = verifyAdmin(
             request,
             env.JWT_SECRET
@@ -262,7 +238,7 @@ const worker = {
                     60
                 );
 
-                if (limited) return limited;
+            if (limited) return limited;
             const admin = verifyAdmin(
             request,
             env.JWT_SECRET
@@ -317,7 +293,7 @@ const worker = {
                     60
                 );
 
-                if (limited) return limited;
+            if (limited) return limited;
 
             const admin = verifyAdmin(
                 request,
@@ -392,43 +368,15 @@ const worker = {
             { status: 400 }
         );
         }
-
-        const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${env.GEMINI_API_KEY}`,
-            {
-                method: "POST",
-                headers: {
-                "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                system_instruction: {
-                    parts: [{ text: SYSTEM_PROMPT }]
-                },
-                contents: history
-                })
-            }
-            );
-
-            if (!response.ok) {
-            return Response.json(
-                {
-                success: false,
-                message: "AI service error."
-                },
-                { status: 502 }
-            );
-            }
-
-            const data = await response.json();
-
-            const reply =
-            data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-            "Sorry, I didn't get a response.";
-
-            return Response.json({
+        const reply =
+        await generateReply(
+            history,
+            env
+        );
+        return Response.json({
             success: true,
             reply
-            });
+        });
 
         } catch (err) {
             return Response.json(
