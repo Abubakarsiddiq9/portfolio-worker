@@ -1,5 +1,6 @@
 import { RESUME_CONTEXT } from "./data/resume.js";
-const GEMINI_MODEL = "gemini-2.5-flash-lite";
+const GEMINI_MODEL = "gemini-2.5-flash";
+// const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
 const SYSTEM_PROMPT = `
 You are a friendly portfolio assistant for Mohammed Abubakar Siddiq.
@@ -48,11 +49,11 @@ export async function generateReply(
             );
 
     if (!response.ok) {
-        const errorText = await response.text();
 
-        throw new Error(
-            `Gemini API Error (${response.status}): ${errorText}`
-        );
+        const err =
+            await response.text();
+
+        throw new Error(err);
     }
 
         const data = await response.json();
@@ -61,6 +62,31 @@ export async function generateReply(
             data?.candidates?.[0]?.content?.parts?.[0]?.text ||
             "Sorry, I didn't get a response."
         );
+}
+
+export async function generateReplyStream(
+    history,
+    env
+) {
+    return fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:streamGenerateContent?alt=sse&key=${env.GEMINI_API_KEY}`,
+        {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                system_instruction: {
+                    parts: [
+                        {
+                            text: SYSTEM_PROMPT
+                        }
+                    ]
+                },
+                contents: history
+            })
+        }
+    );
 }
 
 // Then the eval runner can do: just test.question instead of constructing Gemini history every time.

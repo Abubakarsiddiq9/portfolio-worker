@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { posts } from "./data/posts";
 import { enforceRateLimit } from "./rateLimiter.js";
 import { getGithubRepos } from "./github.js";
-import { generateReply } from "./chatbot.js";
+import { generateReply, generateReplyStream } from "./chatbot.js";
 
 
 
@@ -388,6 +388,80 @@ const worker = {
             );
         }
         }
+
+        if (
+            url.pathname === "/api/chat-stream"  &&
+            request.method === "POST"
+        ){
+            const limited =
+            await enforceRateLimit(
+                request,
+                env,
+                "chat",
+                20,
+                3600
+            );
+
+            if (limited) return limited;
+            const { history } = await request.json();
+            if (
+                !history ||
+                !Array.isArray(history) ||
+                history.length === 0
+                ) {
+                return Response.json(
+                    {
+                    success: false,
+                    message: "Invalid request body."
+                    },
+                    { status: 400 }
+                );
+                }
+            const response =
+                await generateReplyStream(
+                    history,
+                    env
+                );
+            // if (!response.ok) {
+            //     return Response.json(
+            //         {
+            //             success: false,
+            //             message:
+            //                 await response.text()
+            //         },
+            //         {
+            //             status:
+            //                 response.status
+            //         }
+            //     );
+            // }
+
+            if (!response.ok) {
+                const errorText =
+                    await response.text();
+
+                return Response.json(
+                    {
+                        success: false,
+                        message: errorText
+                    },
+                    {
+                        status: response.status
+                    }
+                );
+            }
+
+            return new Response(
+                response.body,
+                {
+                    headers: {
+                        "Content-Type": "text/event-stream",
+                        "Cache-Control": "no-cache"
+                    }
+                }
+            );
+        }
+        
     
         // Get all posts
 

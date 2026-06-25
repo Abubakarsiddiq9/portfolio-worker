@@ -348,18 +348,7 @@ function setupChatbot() {
         return div;
     }
 
-    function showTyping() {
-        const div = document.createElement("div");
-        div.className = "cb-typing";
-        div.id = "cb-typing-indicator";
-        div.innerHTML = "<span></span><span></span><span></span>";
-        messagesEl.appendChild(div);
-        messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
-    function removeTyping() {
-        const t = document.getElementById("cb-typing-indicator");
-        if (t) t.remove();
-    }
+ 
 
     function setInputDisabled(disabled) {
         input.disabled = disabled;
@@ -390,15 +379,157 @@ function setupChatbot() {
         }
 
         setInputDisabled(true);
-        showTyping();
+        let botMessage;
 
         try {
-            const reply = await askGemini(trimmed);
-            removeTyping();
-            appendMessage(reply, "bot");
+            // const reply = await askGemini(trimmed);
+            // appendMessage(reply, "bot");
+            conversationHistory.push({
+                role: "user",
+                parts: [
+                    {
+                        text: trimmed
+                    }
+                ]
+            });
+
+            saveHistory();
+            
+            
+            botMessage = appendMessage(
+                "Thinking...",
+                "bot"
+            );
+            await new Promise(resolve =>
+                setTimeout(resolve, 50) //tz gives the browser a chance to render "Thinking..."
+            );
+            
+            const response =
+                await fetch("/api/chat-stream", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+                    body: JSON.stringify({
+                        history:
+                            conversationHistory
+                    })
+                });
+
+                if (!response.ok) {
+                    
+                    if (response.status === 429) {
+                        throw new Error("RATE_LIMIT");
+                    }
+
+                    const errorText =
+                        await response.text();
+
+                
+                    throw new Error(
+                        `AI_ERROR_${response.status}: ${errorText}`
+                    );
+                }
+                
+
+                const reader = response.body.getReader();
+
+                const decoder = new TextDecoder();
+
+                let fullText = "";
+
+                while (true) {
+                    const {
+                        done,
+                        value
+                    } = await reader.read();
+                    
+
+                    if (done) break;
+
+                    const chunk =
+                        decoder.decode(value);
+                    // console.log("RAW CHUNK:");
+                    // console.log(chunk);
+
+                    const lines =
+                        chunk.split("\n");
+
+                    for (const line of lines) {
+
+                        if (
+                            !line.startsWith("data:")
+                        ) {
+                            continue;
+                        }
+
+                        try {
+
+                            const json =
+                                JSON.parse(
+                                    line.replace(
+                                        "data:",
+                                        ""
+                                    ).trim()
+                                );
+
+                            const text =
+                                json?.candidates?.[0]
+                                    ?.content?.parts?.[0]
+                                    ?.text || "";
+
+
+                            if (
+                                botMessage.textContent ===
+                                "Thinking..."
+                            ) {
+                                botMessage.textContent = "";
+                            }
+                            fullText += text;
+
+                            botMessage.textContent = fullText + "▋";
+
+                            messagesEl.scrollTo({
+                                top: messagesEl.scrollHeight,
+                                behavior: "smooth"
+                            });
+                            saveUIMessages();
+
+                            // force browser repaint
+                            await new Promise(resolve =>
+                                setTimeout(resolve, 430)
+                            );
+
+                        } catch {
+
+                            // ignore malformed chunks
+                        }
+                    }
+                }
+                botMessage.textContent = fullText;
+               
+
+                if (!fullText.trim()) {
+                    botMessage.remove();
+                    throw new Error("AI_ERROR");
+                }
+                conversationHistory.push({
+                    role: "model",
+                    parts: [
+                        {
+                            text: fullText
+                        }
+                    ]
+                });
+                saveHistory();
+                saveUIMessages();
             
         } catch (err) {
-            removeTyping();
+
+            if (botMessage) {
+                botMessage.remove();
+            }
 
             if (err.message === "RATE_LIMIT") {
                 rateLimited = true;
@@ -408,6 +539,7 @@ function setupChatbot() {
             }
 
             appendMessage(getPreDefinedAnswer(trimmed), "bot");
+            saveUIMessages();
             console.error("Chat error:", err.message);
 
         } finally {
