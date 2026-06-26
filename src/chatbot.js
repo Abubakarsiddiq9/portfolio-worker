@@ -27,42 +27,6 @@ Resume Information:
 ${RESUME_CONTEXT}
 `;
 
-export async function generateReply(
-    history,
-    env
-) {
-    // Gemini call here
-    const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${env.GEMINI_API_KEY}`,
-            {
-                method: "POST",
-                headers: {
-                "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                system_instruction: {
-                    parts: [{ text: SYSTEM_PROMPT }]
-                },
-                contents: history
-                })
-            }
-            );
-
-    if (!response.ok) {
-
-        const err =
-            await response.text();
-
-        throw new Error(err);
-    }
-
-        const data = await response.json();
-
-        return (
-            data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-            "Sorry, I didn't get a response."
-        );
-}
 
 export async function generateReplyStream(
     history,
@@ -89,25 +53,3 @@ export async function generateReplyStream(
     );
 }
 
-// Then the eval runner can do: just test.question instead of constructing Gemini history every time.
-// Cleaner architecture. Used by Eval runner
-export async function askQuestion(
-    question,
-    env
-) {
-    const history = [
-        {
-            role: "user",
-            parts: [
-                {
-                    text: question
-                }
-            ]
-        }
-    ];
-
-    return generateReply(
-        history,
-        env
-    );
-}

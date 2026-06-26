@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { posts } from "./data/posts";
 import { enforceRateLimit } from "./rateLimiter.js";
 import { getGithubRepos } from "./github.js";
-import { generateReply, generateReplyStream } from "./chatbot.js";
+import {  generateReplyStream } from "./chatbot.js";
 
 
 
@@ -336,59 +336,6 @@ const worker = {
         }
     }
 
-    if (
-    url.pathname === "/api/chat" &&
-    request.method === "POST"
-    ) {
-    try {
-        // rate limit function
-        const limited =
-            await enforceRateLimit(
-                request,
-                env,
-                "chat",
-                20,
-                3600
-            );
-
-            if (limited) return limited;
-
-        const { history } = await request.json();
-
-        if (
-        !history ||
-        !Array.isArray(history) ||
-        history.length === 0
-        ) {
-        return Response.json(
-            {
-            success: false,
-            message: "Invalid request body."
-            },
-            { status: 400 }
-        );
-        }
-        const reply =
-        await generateReply(
-            history,
-            env
-        );
-        return Response.json({
-            success: true,
-            reply
-        });
-
-        } catch (err) {
-            return Response.json(
-            {
-                success: false,
-                message: err.message
-            },
-            { status: 500 }
-            );
-        }
-        }
-
         if (
             url.pathname === "/api/chat-stream"  &&
             request.method === "POST"
@@ -422,19 +369,7 @@ const worker = {
                     history,
                     env
                 );
-            // if (!response.ok) {
-            //     return Response.json(
-            //         {
-            //             success: false,
-            //             message:
-            //                 await response.text()
-            //         },
-            //         {
-            //             status:
-            //                 response.status
-            //         }
-            //     );
-            // }
+            
 
             if (!response.ok) {
                 const errorText =

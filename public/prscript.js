@@ -4,8 +4,6 @@ const assetPath = (path) => {
     return new URL(normalized, `${window.location.origin}/`).href;
 };
 
-const CHAT_URL = `/api/chat`;
-
 // ── THEME TOGGLE ───────────────────────────────────────────
 const themeButtons = document.querySelectorAll(".theme-toggle, .mobile-theme-toggle");
 const themeIcons   = document.querySelectorAll(".theme-toggle img, .mobile-theme-toggle img");
@@ -117,37 +115,6 @@ const conversationHistory = JSON.parse(sessionStorage.getItem("cb_history") || "
 
 function saveHistory() {
     sessionStorage.setItem("cb_history", JSON.stringify(conversationHistory));
-}
-
-async function askGemini(userMessage) {
-    conversationHistory.push({
-        role: "user",
-        parts: [{ text: userMessage }]
-    });
-    saveHistory();
-
-    const response = await fetch(CHAT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ history: conversationHistory })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        if (response.status === 429) throw new Error("RATE_LIMIT");
-        throw new Error(data?.message || `HTTP ${response.status}`);
-    }
-
-    const reply = data.reply;
-
-    conversationHistory.push({
-        role: "model",
-        parts: [{ text: reply }]
-    });
-    saveHistory();
-
-    return reply;
 }
 
 // Admin Login uIII
@@ -382,8 +349,6 @@ function setupChatbot() {
         let botMessage;
 
         try {
-            // const reply = await askGemini(trimmed);
-            // appendMessage(reply, "bot");
             conversationHistory.push({
                 role: "user",
                 parts: [
@@ -486,14 +451,24 @@ function setupChatbot() {
                             ) {
                                 botMessage.textContent = "";
                             }
-                            fullText += text;
+                            const words = text.match(/\S+\s*/g) || [];
 
-                            botMessage.textContent = fullText + "▋";
+                            for (const word of words) {
 
-                            messagesEl.scrollTo({
-                                top: messagesEl.scrollHeight,
-                                behavior: "smooth"
-                            });
+                                fullText += (fullText ? " " : "") + word;
+
+                                botMessage.textContent = fullText + "▋";
+
+                                messagesEl.scrollTo({
+                                    top: messagesEl.scrollHeight,
+                                    behavior: "smooth"
+                                });
+
+                                await new Promise(resolve =>
+                                    setTimeout(resolve, 55) // adjust speed
+                                );
+                            }
+
                             saveUIMessages();
 
                             // force browser repaint

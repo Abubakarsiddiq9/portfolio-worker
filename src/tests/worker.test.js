@@ -15,26 +15,27 @@ jest.mock("resend", () => {
 global.fetch = jest.fn((url) => {
 
     // Gemini API
-
     if (
         typeof url === "string" &&
-        url.includes(
-            "generativelanguage.googleapis.com"
-        )
+        url.includes("generativelanguage.googleapis.com")
     ) {
+
+        const stream = new ReadableStream({
+            start(controller) {
+
+                controller.enqueue(
+                    new TextEncoder().encode(
+                        `data: {"candidates":[{"content":{"parts":[{"text":"I am Abubakar's portfolio assistant."}]}}]}\n\n`
+                    )
+                );
+
+                controller.close();
+            }
+        });
 
         return Promise.resolve({
             ok: true,
-            json: async () => ({
-                candidates: [{
-                    content: {
-                        parts: [{
-                            text:
-                                "I am Abubakar's portfolio assistant."
-                        }]
-                    }
-                }]
-            })
+            body: stream
         });
     }
 
@@ -151,22 +152,35 @@ describe("POST /api/contact", () => {
     });
 });
 
-// ── /api/chat ─────────────────────────────────────────────────
-describe("POST /api/chat", () => {
-    test("returns AI reply", async () => {
-        const req = makeRequest("/api/chat", "POST", {
-            history: [{ role: "user", parts: [{ text: "What are your skills?" }] }]
+// ── /api/chat-stream ──────────────────────────────────────────
+describe("POST /api/chat-stream", () => {
+
+    test("returns AI stream", async () => {
+        const req = makeRequest("/api/chat-stream", "POST", {
+            history: [
+                {
+                    role: "user",
+                    parts: [
+                        {
+                            text: "What are your skills?"
+                        }
+                    ]
+                }
+            ]
         });
+
         const res = await worker.default.fetch(req, mockEnv);
-        const data = await res.json();
 
         expect(res.status).toBe(200);
-        expect(data.success).toBe(true);
-        expect(typeof data.reply).toBe("string");
+
+        const text = await res.text();
+
+        expect(typeof text).toBe("string");
+        expect(text.length).toBeGreaterThan(0);
     });
 
     test("returns 400 when history is missing", async () => {
-        const req = makeRequest("/api/chat", "POST", {});
+        const req = makeRequest("/api/chat-stream", "POST", {});
         const res = await worker.default.fetch(req, mockEnv);
         const data = await res.json();
 
@@ -175,13 +189,17 @@ describe("POST /api/chat", () => {
     });
 
     test("returns 400 when history is empty array", async () => {
-        const req = makeRequest("/api/chat", "POST", { history: [] });
+        const req = makeRequest("/api/chat-stream", "POST", {
+            history: []
+        });
+
         const res = await worker.default.fetch(req, mockEnv);
         const data = await res.json();
 
         expect(res.status).toBe(400);
         expect(data.success).toBe(false);
     });
+
 });
 
 // ── unknown route ─────────────────────────────────────────────
