@@ -21,7 +21,7 @@ A responsive full-stack portfolio website showcasing my projects, skills, journe
 
 ### AI
 
-* Google Gemini API (gemini-2.5-flash-lite)
+* Google Gemini API (gemini-2.5-flash)
 
 ### Testing
 
@@ -49,6 +49,11 @@ A responsive full-stack portfolio website showcasing my projects, skills, journe
 * Delete guestbook messages
 * Dark mode support
 
+* Live GitHub repository integration
+* Blog REST API
+* Streaming AI chatbot responses (Server-Sent Events)
+* Cloudflare Cache API for GitHub repositories
+
 ## Chatbot
 
 **What it is:**
@@ -56,7 +61,7 @@ A chatbot on my portfolio that answers questions about me — my skills, educati
 
 **How it works:**
 
-* The frontend sends the user's message to `/api/chat` on the Cloudflare Worker
+* The frontend sends the conversation history to /api/chat-stream using Server-Sent Events (SSE). The Cloudflare Worker forwards the request to the Gemini API's streaming endpoint and streams the response back to the browser in real time, providing a typewriter-style user experience.
 * The Worker calls the Google Gemini API with a system prompt containing all my details
 * Gemini generates a natural response and sends it back
 
@@ -116,6 +121,12 @@ The portfolio includes a protected admin guestbook for managing contact form sub
 | `/api/admin/check` | GET | Check admin session |
 | `/api/admin/messages` | GET | Fetch guestbook messages |
 | `/api/admin/messages/:id` | DELETE | Delete a guestbook message |
+| `/api/posts`        | GET    | Returns all blog posts      |
+| `/api/posts/{slug}` | GET    | Returns a single blog       |
+| `/api/github/repos` | GET    | Returns GitHub repositories |
+| `/api/chat-stream`  | POST   | Streaming chatbot endpoint  |
+
+
 
 ## Testing
 
@@ -207,3 +218,9 @@ Submits contact form.
 ## POST /api/chat
 
 Portfolio chatbot endpoint.
+
+• JWT-secured admin dashboard
+• Cloudflare D1 message storage
+• Cloudflare KV rate limiting
+• Live GitHub repositories
+• Server-Sent Events chatbot

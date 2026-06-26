@@ -61,3 +61,15 @@ This means:
 
 Why 5 minutes: GitHub repos don't change frequently.
 A short TTL keeps data reasonably fresh without hitting GitHub rate limits.
+
+## Streaming Chatbot
+
+The chatbot originally used a request-response model where the complete AI response was returned before being displayed.
+
+This was replaced with Server-Sent Events (SSE), allowing Gemini responses to stream progressively to the browser.
+
+Benefits:
+
+- Faster perceived response time
+- Better user experience
+- Similar interaction style to ChatGPT
