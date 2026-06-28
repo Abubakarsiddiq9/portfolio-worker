@@ -349,7 +349,7 @@ function setupChatbot() {
         let botMessage;
 
         try {
-            conversationHistory.push({
+            conversationHistory.push({ //adds to history.Gemini needs previous conversation.
                 role: "user",
                 parts: [
                     {
@@ -358,7 +358,7 @@ function setupChatbot() {
                 ]
             });
 
-            saveHistory();
+            saveHistory();//stores in sessionStorg
             
             
             botMessage = appendMessage(
@@ -378,19 +378,17 @@ function setupChatbot() {
                     },
                     body: JSON.stringify({
                         history:
-                            conversationHistory
+                            conversationHistory //The browser says:Here's our conversation history. Start generating a reply.
                     })
                 });
 
-                if (!response.ok) {
+                if (!response.ok) { //here def errs goes to catch block
                     
                     if (response.status === 429) {
-                        throw new Error("RATE_LIMIT");
+                        throw new Error("RATE_LIMIT");//later catch block knows exactly what to do.
                     }
 
-                    const errorText =
-                        await response.text();
-
+                    const errorText = await response.text();//if something else like gemini service !avlibl
                 
                     throw new Error(
                         `AI_ERROR_${response.status}: ${errorText}`
@@ -398,33 +396,30 @@ function setupChatbot() {
                 }
                 
 
-                const reader = response.body.getReader();
+                const reader = response.body.getReader(); //getReader() it says Give me pieces as they arrive(gemini ->chunk->chunk->chunk->browser insted of gemini ->whole ans->browser).like YouTube doesn't wait for the whole movie It starts showing immediately.
 
-                const decoder = new TextDecoder();
+                const decoder = new TextDecoder();//internet doesn't send strings.It sends bytes.SO TextDecoder converts bytes->'hello' without it you'd see binary values
 
-                let fullText = "";
+                let fullText = "";//store previous pieces(chunks)
 
-                while (true) {
-                    const {
-                        done,
-                        value
-                    } = await reader.read();
-                    
+                while (true) { //keep reading until there's no more data(read chunk until finsihed)
+                    const { done, value} = await reader.read(); //w8 for nxt chunk
+                    // ^ has 2 things: VALUE:actual bytes(110010100 etc), DONE:boolen {false:more data is coming}{true: stream finished}
 
                     if (done) break;
 
-                    const chunk =
-                        decoder.decode(value);
+                    const chunk = decoder.decode(value);
                     // console.log("RAW CHUNK:");
                     // console.log(chunk);
 
-                    const lines =
-                        chunk.split("\n");
+                    const lines = chunk.split("\n"); //SSE (Server-Sent Events) comes in.SSE is a protocol where the server keeps the HTTP connection open and sends multiple messages over the same request.
+                    // Gemini's streaming endpoint uses SSE.
+                    // separate the incoming text into individual lines so i can inspect each one.
 
                     for (const line of lines) {
 
                         if (
-                            !line.startsWith("data:")
+                            !line.startsWith("data:") //Not every line contains JSON.some are blank and other etx.want lines beginning with:data:
                         ) {
                             continue;
                         }
@@ -433,17 +428,29 @@ function setupChatbot() {
 
                             const json =
                                 JSON.parse(
-                                    line.replace(
-                                        "data:",
-                                        ""
-                                    ).trim()
+                                    line.replace("data:", "").trim()
                                 );
+
+                                //{
+                                    //     "candidates":[
+                                    //         {
+                                    //             "content":{
+                                    //                 "parts":[
+                                    //                     {
+                                    //                         "text":"Hello Abubakar!"
+                                    //                     }
+                                    //                 ]
+                                    //             }
+                                    //         }
+                                    //     ]
+                                    // }
+                                // Gemini sends this but we want only,so go through the obj and find the acutal text
 
                             const text =
                                 json?.candidates?.[0]
                                     ?.content?.parts?.[0]
                                     ?.text || "";
-
+                                    
 
                             if (
                                 botMessage.textContent ===
@@ -451,7 +458,7 @@ function setupChatbot() {
                             ) {
                                 botMessage.textContent = "";
                             }
-                            const words = text.match(/\S+\s*/g) || [];
+                            const words = text.match(/\S+\s*/g) || []; //whole sentnc split it into words.['hello','welcome','to',....]
 
                             for (const word of words) {
 
@@ -471,14 +478,14 @@ function setupChatbot() {
 
                             saveUIMessages();
 
-                            // force browser repaint
+                            // force browser repaint(additional delay,make transition feel smoother)
                             await new Promise(resolve =>
                                 setTimeout(resolve, 430)
                             );
 
                         } catch {
 
-                            // ignore malformed chunks
+                            // ignore malformed chunks.If one chunk is broken, skip it and continue reading the rest
                         }
                     }
                 }
@@ -497,8 +504,8 @@ function setupChatbot() {
                         }
                     ]
                 });
-                saveHistory();
-                saveUIMessages();
+                saveHistory();//entire array is sent to Gemini.Gemini reads all previous messages and answers.stores the array locally(sessionStg)([{role:'user',parts:[{text:'hy'}]}{role:'model',parts:[{text:'nice to meet you}]}])
+                saveUIMessages();//saves and render history to user
             
         } catch (err) {
 
