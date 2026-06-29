@@ -98,9 +98,23 @@ const mockEnv = {
     EMAIL: "test@example.com",
     GEMINI_API_KEY: "mock-gemini-key",
 
-    RATE_LIMITS: {
-        get: jest.fn().mockResolvedValue(null),
-        put: jest.fn().mockResolvedValue(undefined)
+    RATE_LIMITER: {
+        idFromName: jest.fn(() => "test-id"),
+
+        get: jest.fn(() => ({
+            fetch: jest.fn(async () =>
+                new Response(
+                    JSON.stringify({
+                        allowed: true
+                    }),
+                    {
+                        headers: {
+                            "Content-Type": "application/json"
+                        }
+                    }
+                )
+            )
+        }))
     },
 
     portfolio_db: {

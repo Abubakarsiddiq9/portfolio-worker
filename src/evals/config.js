@@ -1,1 +1,1 @@
-export const CHAT_URL ="https://portfolio-worker.abubakarsiddiqmohiuddin.workers.dev/api/chat";
+export const CHAT_URL ="https://portfolio-worker.abubakarsiddiqmohiuddin.workers.dev/api/chat-stream";

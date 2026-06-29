@@ -24,15 +24,40 @@ for (const test of testCases) {
             })
         });
 
-        const data = await response.json();
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
 
-        if (!response.ok) {
-            console.log(`ERROR ${test.name}`);
-            console.log(JSON.stringify(data, null, 2));
-            continue;
+        let reply = "";
+
+        while (true) {
+            const { done, value } = await reader.read();
+
+            if (done) break;
+
+            const chunk = decoder.decode(value);
+
+            const lines = chunk.split("\n");
+
+            for (const line of lines) {
+
+                if (!line.startsWith("data:")) continue;
+
+                try {
+
+                    const json = JSON.parse(
+                        line.replace("data:", "").trim()
+                    );
+
+                    reply +=
+                        json?.candidates?.[0]
+                            ?.content?.parts?.[0]
+                            ?.text || "";
+
+                } catch {
+                    // ignore malformed chunks
+                }
+            }
         }
-
-        const reply = data.reply;
 
         const success = test.mustContain.every(
             (text) =>

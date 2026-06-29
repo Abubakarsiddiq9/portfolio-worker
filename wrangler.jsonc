@@ -18,6 +18,12 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
+	"migrations": [
+		{
+			"tag": "v1",
+			"new_sqlite_classes": ["RateLimiterDO"]
+		}
+	],
 	"d1_databases": [
 		{
 			"binding": "portfolio_db",
@@ -25,13 +31,14 @@
 			"database_id": "52418441-c437-4015-9247-ae4f8c97f7eb"
 		}
 	],
-	"kv_namespaces": [
-		{
-			"binding": "RATE_LIMITS",
-			"id": "9ce70f31b916466bb12aed8422cec202",
-			"preview_id": "e2441802bd754c019ba4ca4320295ce8"
-		}
-	]
+	"durable_objects": {
+		"bindings": [
+			{
+				"name": "RATE_LIMITER",
+				"class_name": "RateLimiterDO"
+			}
+		]
+	},
 	/**
 	 * Smart Placement
 	 * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement

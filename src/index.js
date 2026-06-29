@@ -121,7 +121,7 @@ const worker = {
                     env,
                     "login",
                     5,
-                    900
+                    960
                 );
 
             if (limited) return limited;
@@ -472,6 +472,12 @@ const worker = {
         });
   }
 };
+export { RateLimiterDO } from "./RateLimiterDO.js";
 export default worker;
 // Allows Jest (CommonJS) to import this file
 if (typeof module !== "undefined") module.exports = { default: worker };
+// The cleaner long-term solution would be to migrate the Jest tests to native ES Modules and remove the compatibility export, but that requires updating the Jest configuration as well. Since the current implementation is functional and all tests pass, I kept the compatibility layer for now.
+// export default → ES Module syntax.
+// module.exports → CommonJS syntax.
+// Having both in the same file causes Wrangler to warn that CommonJS is being used inside an ES Module.
+// It's a warning, not an error. The Worker still builds and runs correctly.
