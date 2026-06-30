@@ -53,6 +53,8 @@ A responsive full-stack portfolio website showcasing my projects, skills, journe
 * Blog REST API
 * Streaming AI chatbot responses (Server-Sent Events)
 * Cloudflare Cache API for GitHub repositories
+* Cloudflare Durable Objects for distributed rate limiting
+* Chatbot evaluation suite (mock + real evals)
 
 ## Chatbot
 
@@ -66,7 +68,10 @@ A chatbot on my portfolio that answers questions about me — my skills, educati
 * Gemini generates a natural response and sends it back
 
 **Rate limiting:**
-The Worker limits each user to 20 messages per hour using server-side rate limiting powered by Cloudflare KV. Requests are tracked by client IP address. If the limit is reached, the chatbot automatically switches to a predefined keyword-based fallback so users can still get answers without consuming any AI API quota.
+
+The Worker limits each user to 20 messages per hour using Cloudflare Durable Objects.
+Each client IP is mapped to its own Durable Object instance, which maintains an isolated request counter in strongly consistent storage. This avoids race conditions that can occur with eventually consistent storage and ensures accurate request counting even under concurrent traffic.
+If the limit is reached, the chatbot automatically switches to a predefined keyword-based fallback so users can continue using the portfolio without consuming additional Gemini API quota.
 
 **Message persistence:**
 Chat messages are saved in `sessionStorage`, so conversations remain available while navigating between pages during the same browser session. When the tab is closed, the chat history is cleared. Rate limiting is enforced server-side and is not stored in the browser.
@@ -115,7 +120,6 @@ The portfolio includes a protected admin guestbook for managing contact form sub
 |---|---|---|
 | `/api/test` | GET | Health check |
 | `/api/contact` | POST | Sends contact form email via Resend |
-| `/api/chat` | POST | AI chatbot via Gemini API |
 | `/api/admin/login` | POST | Admin login |
 | `/api/admin/logout` | POST | Admin logout |
 | `/api/admin/check` | GET | Check admin session |
@@ -132,13 +136,15 @@ The portfolio includes a protected admin guestbook for managing contact form sub
 
 Automated tests are implemented using Jest.
 
+
+
 ### Frontend Tests
 
 * Verify that all portfolio pages exist in the correct locations
 
 ### Worker API Tests
 
-* Verify all API endpoints (`/api/test`, `/api/contact`, `/api/chat`)
+* Verify all API endpoints (`/api/test`, `/api/contact`, `/api/chat-stream`)
 * Validate request handling and input validation
 * Resend and Gemini are mocked — no real API calls during tests
 
@@ -183,6 +189,15 @@ portfolio-worker/
 │   └── Blogpg/
 ├── src/
 │   ├── index.js        # Cloudflare Worker entry point
+    ├── chatbot.js
+    ├── rateLimiter.js
+    ├── rateLimiterDO.js
+    ├── evals/
+    │   ├── cases.js
+    │   ├── mockReplies.js
+    │   ├── runMockEvals.js
+    │   ├── runRealEvals.js
+    │   └── config.js
 │   └── tests/
 │       └── worker.test.js
 ├── wrangler.jsonc
@@ -215,7 +230,7 @@ Returns live GitHub repositories.
 
 Submits contact form.
 
-## POST /api/chat
+## POST /api/chat-stream
 
 Portfolio chatbot endpoint.
 

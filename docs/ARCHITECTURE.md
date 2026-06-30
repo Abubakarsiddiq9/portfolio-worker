@@ -137,7 +137,10 @@ Shared frontend functionality.
 
 Responsibilities:
 
-* Theme toggle
+* Theme toggle\
+* Chatbot UI
+* Streaming AI rendering
+* Session history persistence\
 * Admin login modal
 * Authentication state handling
 * Shared UI behavior
@@ -213,3 +216,67 @@ If GitHub is unavailable:
 1. GitHub request fails.
 2. Worker returns 502.
 3. Frontend displays a fallback message.
+
+### src/chatbot.js
+
+Handles AI communication.
+
+Responsibilities:
+
+- Builds Gemini requests
+- Streams Gemini responses using Server-Sent Events
+- Injects the portfolio system prompt
+- Returns streaming responses to the Worker
+
+Used by:
+
+- POST /api/chat-stream
+
+### src/rateLimiter.js
+
+Worker-side rate limiting layer.
+
+Responsibilities:
+
+- Extracts client IP
+- Locates the correct Durable Object
+- Sends rate-limit requests
+- Blocks requests exceeding configured limits
+
+Used by:
+
+- POST /api/chat-stream
+- POST /api/admin/login
+
+### src/rateLimiterDO.js
+
+Durable Object implementation.
+
+Responsibilities:
+
+- Stores request counters
+- Maintains one counter per client
+- Automatically clears counters when the window expires
+- Provides strongly consistent request counting
+
+### Streaming Chatbot
+
+1. User sends a message.
+
+2. Frontend sends conversation history to:
+
+POST /api/chat-stream
+
+3. Worker validates the request.
+
+4. Worker checks rate limits through a Durable Object.
+
+5. Worker forwards the request to Gemini's streaming API.
+
+6. Gemini streams partial responses.
+
+7. Worker immediately forwards each chunk to the browser using Server-Sent Events.
+
+8. Frontend renders words progressively, producing a ChatGPT-like typing effect.
+
+9. Final conversation history is saved in sessionStorage.

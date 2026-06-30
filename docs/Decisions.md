@@ -34,6 +34,7 @@ AI was used as a development assistant for:
 * Reviewing code and helping debug issues
 * Guidance for JWT authentication
 * Guidance for Cloudflare D1 integration
+* Cloudflare Durable Objects implementation
 * Assistance with admin dashboard implementation
 * Assistance with guestbook UI responsiveness
 * Assistance with protected route implementation
@@ -64,12 +65,40 @@ A short TTL keeps data reasonably fresh without hitting GitHub rate limits.
 
 ## Streaming Chatbot
 
-The chatbot originally used a request-response model where the complete AI response was returned before being displayed.
+The chatbot originally used a traditional request–response model where the complete AI response was returned before being displayed.
 
-This was replaced with Server-Sent Events (SSE), allowing Gemini responses to stream progressively to the browser.
+It was redesigned to use Server-Sent Events (SSE), allowing Gemini responses to stream incrementally through the Cloudflare Worker.
+
+The frontend renders incoming words progressively, creating a typewriter-style experience similar to ChatGPT.
 
 Benefits:
 
-- Faster perceived response time
-- Better user experience
-- Similar interaction style to ChatGPT
+- Lower perceived latency
+- Immediate feedback for users
+- Improved conversational experience
+- Reduced waiting time for long responses
+
+## Rate Limiting
+
+The original implementation used Cloudflare KV to count requests.
+
+This was later replaced with Cloudflare Durable Objects.
+
+Reasons:
+
+- Strong consistency
+- No race conditions
+- Better suited for counters
+- One Durable Object instance per client IP
+- Automatic expiration using Durable Object alarms
+
+## Chatbot Evaluations
+
+The chatbot includes automated evaluation tests.
+
+Two evaluation modes are maintained:
+
+- Mock evaluations for CI, using predefined responses without calling Gemini.
+- Real evaluations against the deployed Worker using the live Gemini API.
+
+This allows regressions to be detected before deployment while avoiding unnecessary API usage during automated workflows.
