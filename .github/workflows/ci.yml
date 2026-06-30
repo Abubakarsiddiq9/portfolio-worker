@@ -25,3 +25,6 @@ jobs:
 
       - name: Run worker API tests
         run: npm test -- --testPathPattern=src/tests/worker.test.js
+        
+      - name: Run chatbot mock evals
+        run: npm run evals

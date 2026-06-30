@@ -153,6 +153,11 @@ The main branch is protected — pull requests cannot be merged until all 12 tes
 ## Manual Testing
 
 The following functionality was manually verified:
+• Streaming responses appear progressively
+• Auto-scroll follows incoming messages
+• Chat history persists across page navigation
+• Empty message bubbles do not appear
+• AI fallback activates when Gemini is unavailable
 
 ### Responsive Design
 * Desktop layout
@@ -196,3 +201,26 @@ Test 2:
 Test:
 - Returns repository list
 - Status 200
+
+### POST /api/chat-stream
+
+Test 1
+
+- Returns streamed AI response
+- Status 200
+
+Test 2
+
+- Returns 400 when history is missing
+
+Test 3
+
+- Returns 400 when history is empty
+
+Test 4
+
+- Handles Gemini failures correctly
+
+Test 5
+
+- Fallback mode activates on 429 or 503 responses

@@ -3,29 +3,10 @@ import jwt from "jsonwebtoken";
 import { posts } from "./data/posts";
 import { enforceRateLimit } from "./rateLimiter.js";
 import { getGithubRepos } from "./github.js";
+import {  generateReplyStream } from "./chatbot.js";
 
-const GEMINI_MODEL = "gemini-2.5-flash-lite";
 
-const SYSTEM_PROMPT = `You are a friendly portfolio assistant for Mohammed Abubakar Siddiq.
-Answer questions about him based ONLY on the facts below. Keep answers concise (2-4 sentences max).
-If something is not covered below, say you don't have that info yet and suggest visiting the relevant page.
-Never make up facts. Respond in the same language the user writes in.
-If asked whether you are AI, Gemini-powered, or how you work: confirm you are an AI assistant powered by Google Gemini, and that Abubakar built this chatbot by integrating the Gemini API into his portfolio — which itself is a demonstration of his web development skills.
 
-FACTS ABOUT ABUBAKAR:
-- Full name: Mohammed Abubakar Siddiq
-- Age: 18 years old
-- Location: Khammam, Telangana, India
-- Currently pursuing BS in Data Science at IIT Madras 
-- Schooling: 10th at Oxford School Khammam (GPA 9.2/10), Intermediate at Sri Chaitanya Junior College (92.3%)
-- Started coding at age 13 during COVID-19 lockdown, first program was "Hello World" in C
-- Skills / Tech stack: HTML, CSS, JavaScript, Python, Node.js, Express.js, PostgreSQL, Git, GitHub, Figma, VS Code
-- Projects: portfolio website, calculator, clock app, todo app, Islamic learning platform
-- Email: abubakarsiddiqmohiuddin@gmail.com
-- WhatsApp: +91 8121104202
-- GitHub: github.com/Abubakarsiddiq9
-- Goals: Become a skilled Software Engineer, build innovative scalable software, interested in intersection of data science and web development
-- Portfolio pages: Home, Projects, Journey, Blogs, Contact`;
 
 
 
@@ -82,7 +63,7 @@ const worker = {
                     3600
                 );
 
-                if (limited) return limited;
+            if (limited) return limited;
             const { name, email, message } = await request.json();
 
             if (!name || !email || !message) {
@@ -140,10 +121,10 @@ const worker = {
                     env,
                     "login",
                     5,
-                    900
+                    960
                 );
 
-                if (limited) return limited;
+            if (limited) return limited;
 
             const { password } = await request.json();
 
@@ -202,7 +183,7 @@ const worker = {
                 3600
             );
 
-            if (limited) return limited;
+        if (limited) return limited;
         return Response.json(
             {
                 success: true
@@ -230,7 +211,7 @@ const worker = {
                 60
             );
 
-            if (limited) return limited;
+        if (limited) return limited;
         const admin = verifyAdmin(
             request,
             env.JWT_SECRET
@@ -257,7 +238,7 @@ const worker = {
                     60
                 );
 
-                if (limited) return limited;
+            if (limited) return limited;
             const admin = verifyAdmin(
             request,
             env.JWT_SECRET
@@ -312,7 +293,7 @@ const worker = {
                     60
                 );
 
-                if (limited) return limited;
+            if (limited) return limited;
 
             const admin = verifyAdmin(
                 request,
@@ -355,13 +336,11 @@ const worker = {
         }
     }
 
-    if (
-    url.pathname === "/api/chat" &&
-    request.method === "POST"
-    ) {
-    try {
-        // rate limit function
-        const limited =
+        if (
+            url.pathname === "/api/chat-stream"  &&
+            request.method === "POST"
+        ){
+            const limited =
             await enforceRateLimit(
                 request,
                 env,
@@ -371,70 +350,53 @@ const worker = {
             );
 
             if (limited) return limited;
-
-        const { history } = await request.json();
-
-        if (
-        !history ||
-        !Array.isArray(history) ||
-        history.length === 0
-        ) {
-        return Response.json(
-            {
-            success: false,
-            message: "Invalid request body."
-            },
-            { status: 400 }
-        );
-        }
-
-        const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${env.GEMINI_API_KEY}`,
-            {
-                method: "POST",
-                headers: {
-                "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                system_instruction: {
-                    parts: [{ text: SYSTEM_PROMPT }]
-                },
-                contents: history
-                })
-            }
-            );
+            const { history } = await request.json();
+            if (
+                !history ||
+                !Array.isArray(history) ||
+                history.length === 0
+                ) {
+                return Response.json(
+                    {
+                    success: false,
+                    message: "Invalid request body."
+                    },
+                    { status: 400 }
+                );
+                }
+            const response =
+                await generateReplyStream(
+                    history,
+                    env
+                );
+            
 
             if (!response.ok) {
-            return Response.json(
-                {
-                success: false,
-                message: "AI service error."
-                },
-                { status: 502 }
-            );
+                const errorText =
+                    await response.text();
+
+                return Response.json(
+                    {
+                        success: false,
+                        message: errorText
+                    },
+                    {
+                        status: response.status
+                    }
+                );
             }
 
-            const data = await response.json();
-
-            const reply =
-            data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-            "Sorry, I didn't get a response.";
-
-            return Response.json({
-            success: true,
-            reply
-            });
-
-        } catch (err) {
-            return Response.json(
-            {
-                success: false,
-                message: err.message
-            },
-            { status: 500 }
+            return new Response(
+                response.body,
+                {
+                    headers: {
+                        "Content-Type": "text/event-stream",
+                        "Cache-Control": "no-cache"
+                    }
+                }
             );
         }
-        }
+        
     
         // Get all posts
 
@@ -510,6 +472,12 @@ const worker = {
         });
   }
 };
+export { RateLimiterDO } from "./RateLimiterDO.js";
 export default worker;
 // Allows Jest (CommonJS) to import this file
 if (typeof module !== "undefined") module.exports = { default: worker };
+// The cleaner long-term solution would be to migrate the Jest tests to native ES Modules and remove the compatibility export, but that requires updating the Jest configuration as well. Since the current implementation is functional and all tests pass, I kept the compatibility layer for now.
+// export default → ES Module syntax.
+// module.exports → CommonJS syntax.
+// Having both in the same file causes Wrangler to warn that CommonJS is being used inside an ES Module.
+// It's a warning, not an error. The Worker still builds and runs correctly.
