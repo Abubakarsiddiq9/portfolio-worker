@@ -4,6 +4,10 @@ import { posts } from "./data/posts";
 import { enforceRateLimit } from "./rateLimiter.js";
 import { getGithubRepos } from "./github.js";
 import {  generateReplyStream } from "./chatbot.js";
+import { verifyTurnstile } from "./turnstile.js";
+import { validateContact } from "./validation.js";
+
+
 
 
 
@@ -64,17 +68,51 @@ const worker = {
                 );
 
             if (limited) return limited;
-            const { name, email, message } = await request.json();
+            
+            const body = await request.json();
 
-            if (!name || !email || !message) {
-            return Response.json(
-                {
-                success: false,
-                message: "All fields are required"
-                },
-                { status: 400 }
-            );
+            const { turnstileToken } = body;
+
+            const verified =
+                await verifyTurnstile(
+                    turnstileToken,
+                    request,
+                    env
+                );
+
+            if (!verified) {
+
+                return Response.json(
+                    {
+                        success: false,
+                        message:
+                            "Turnstile verification failed."
+                    },
+                    {
+                        status: 403
+                    }
+                );
             }
+
+            const validation =
+                validateContact(body);
+
+            if (!validation.valid) {
+                return Response.json(
+                    {
+                        success: false,
+                        message: validation.message
+                    },
+                    { status: 400 }
+                );
+            }
+
+            const {
+                name,
+                email,
+                message
+            } = validation.data; //These are the trimmed, validated values.So Resend and D1 will receive clean input.
+
             const resend = new Resend(env.RESEND_API_KEY);
 
             await resend.emails.send({
@@ -90,7 +128,7 @@ const worker = {
                     INSERT INTO contacts (name, email, message)
                     VALUES (?, ?, ?)
                 `)
-                .bind(name, email, message) 
+                .bind(name, email, message)  //This protects against SQL Injection. as ! USING `INSERT INTO contacts VALUES ('${name}')`
                 .run();
 
             return Response.json({

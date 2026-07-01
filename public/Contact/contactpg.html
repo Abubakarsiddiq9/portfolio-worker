@@ -92,7 +92,11 @@
         <input type="email" placeholder="youremail@awesome.com" id="email" required>
         <span class="error" id="emailError"></span>
         <p>Message</p>
-        <textarea placeholder="Enter your message" id="message" required></textarea>       
+        <textarea placeholder="Enter your message" id="message" required></textarea>   
+        <div
+            class="cf-turnstile"
+            data-sitekey="0x4AAAAAADuBVOA7JBw0IBFF">
+        </div>
         <span class="error" id="messageError"></span>
         <button class="sendcs" id="sendBtn" type="submit">
             <span  id="btnText">Send it my way</span>
@@ -101,9 +105,15 @@
      </form>
 
 
-
+     <!-- Turnstile widget. -->
+    <script
+        src="https://challenges.cloudflare.com/turnstile/v0/api.js"
+        async
+        defer>
+    </script>
     <script src="script.js"></script>
     <script src="../prscript.js"></script>
+    
     <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "63edc74e28f8464387bbfd6cffca7742"}'></script><!-- End Cloudflare Web Analytics -->
 </body>
 </html>
