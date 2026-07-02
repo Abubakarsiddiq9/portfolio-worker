@@ -371,6 +371,7 @@ function setupChatbot() {
             
             const response =
                 await fetch("/api/chat-stream", {
+                    
                     method: "POST",
                     headers: {
                         "Content-Type":
@@ -389,7 +390,6 @@ function setupChatbot() {
                     }
 
                     const errorText = await response.text();//if something else like gemini service !avlibl
-                
                     throw new Error(
                         `AI_ERROR_${response.status}: ${errorText}`
                     );

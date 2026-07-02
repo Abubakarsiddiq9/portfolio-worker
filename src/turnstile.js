@@ -31,6 +31,8 @@ export async function verifyTurnstile(
         );
     }
 
+    // Turnstile tokens are verified with Cloudflare because the Worker cannot
+    // trust tokens received directly from the browser.
     const response =
         await fetch(
             "https://challenges.cloudflare.com/turnstile/v0/siteverify",

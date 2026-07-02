@@ -259,24 +259,106 @@ Responsibilities:
 - Automatically clears counters when the window expires
 - Provides strongly consistent request counting
 
-### Streaming Chatbot
+### Streaming Chatbot Request Flow
 
 1. User sends a message.
 
-2. Frontend sends conversation history to:
+2. Frontend sends the conversation history to:
 
 POST /api/chat-stream
 
-3. Worker validates the request.
+3. Worker validates the request body.
 
-4. Worker checks rate limits through a Durable Object.
+4. Worker checks the client's rate limit using the Durable Object.
 
-5. Worker forwards the request to Gemini's streaming API.
+5. The latest user message is inspected by the guardrails.
 
-6. Gemini streams partial responses.
+6. If the message is a prompt injection attempt, a safe response is returned immediately.
 
-7. Worker immediately forwards each chunk to the browser using Server-Sent Events.
+7. Otherwise, the Worker sends the request to Gemini.
 
-8. Frontend renders words progressively, producing a ChatGPT-like typing effect.
+8. Gemini streams its response.
 
-9. Final conversation history is saved in sessionStorage.
+9. The Worker forwards each chunk to the browser using Server-Sent Events (SSE).
+
+10. The frontend renders the response progressively and stores the conversation in sessionStorage.
+
+### src/guardrails.js
+
+Worker-side AI safety checks.
+
+Responsibilities:
+
+- Detects prompt injection attempts
+- Blocks system prompt extraction requests
+- Blocks instruction override attacks
+- Returns a safe response before Gemini is called
+
+Used by:
+
+- src/chatbot.js
+
+### src/validation.js
+
+Server-side validation for the contact form.
+
+Responsibilities:
+
+- Validates required fields
+- Validates email format
+- Trims user input
+- Rejects invalid requests before processing
+
+Used by:
+
+- POST /api/contact
+
+### src/turnstile.js
+
+Cloudflare Turnstile verification.
+
+Responsibilities:
+
+- Verifies Turnstile tokens with Cloudflare
+- Rejects automated submissions
+- Returns verification status to the Worker
+
+Used by:
+
+- POST /api/contact
+
+### src/securityHeaders.js
+
+Applies security headers to Worker responses.
+
+Responsibilities:
+
+- Adds Content-Security-Policy (CSP)
+- Prevents clickjacking
+- Prevents MIME sniffing
+- Sets Referrer Policy
+- Sets Permissions Policy
+
+Used by:
+
+- All API responses
+
+### Contact Form Request Flow
+
+1. User fills out the contact form.
+
+2. Cloudflare Turnstile generates a verification token.
+
+3. Frontend submits the form and Turnstile token to POST /api/contact.
+
+4. Worker checks the client's rate limit.
+
+5. Worker verifies the Turnstile token with Cloudflare.
+
+6. Worker validates all submitted fields.
+
+7. If validation succeeds, the email is sent using Resend.
+
+8. The message is stored in the D1 database.
+
+9. A success response is returned to the browser.

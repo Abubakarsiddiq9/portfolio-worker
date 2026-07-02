@@ -6,13 +6,8 @@ import { getGithubRepos } from "./github.js";
 import {  generateReplyStream } from "./chatbot.js";
 import { verifyTurnstile } from "./turnstile.js";
 import { validateContact } from "./validation.js";
-
-
-
-
-
-
-
+import { secureJson, secureResponse } from "./securityHeaders.js";
+import { checkInput } from "./guardrails.js";
 
 function verifyAdmin(request, jwtSecret) {
   const cookieHeader = request.headers.get("Cookie");
@@ -46,7 +41,7 @@ const worker = {
 
     // Test route
     if (url.pathname === "/api/test") {
-      return Response.json({
+      return secureJson({
         success: true,
         message: "Worker API is working"
       });
@@ -73,6 +68,8 @@ const worker = {
 
             const { turnstileToken } = body;
 
+            // // Always verify the Turnstile token on the server because attackers can
+            // bypass frontend checks and call the API directly.
             const verified =
                 await verifyTurnstile(
                     turnstileToken,
@@ -82,7 +79,7 @@ const worker = {
 
             if (!verified) {
 
-                return Response.json(
+                return secureJson(
                     {
                         success: false,
                         message:
@@ -98,7 +95,7 @@ const worker = {
                 validateContact(body);
 
             if (!validation.valid) {
-                return Response.json(
+                return secureJson(
                     {
                         success: false,
                         message: validation.message
@@ -131,12 +128,12 @@ const worker = {
                 .bind(name, email, message)  //This protects against SQL Injection. as ! USING `INSERT INTO contacts VALUES ('${name}')`
                 .run();
 
-            return Response.json({
+            return secureJson({
             success: true
             });
 
         } catch (err) {
-            return Response.json(
+            return secureJson(
             {
                 success: false,
                 message: err.message
@@ -167,7 +164,7 @@ const worker = {
             const { password } = await request.json();
 
             if (password !== env.ADMIN_PASSWORD) {
-            return Response.json(
+            return secureJson(
                 {
                 success: false,
                 message: "Invalid password"
@@ -183,7 +180,7 @@ const worker = {
             { expiresIn: "7d" }
             );
 
-            return Response.json(
+            return secureJson(
             {
                 success: true
             },
@@ -195,7 +192,7 @@ const worker = {
             }
             );
         } catch (err) {
-            return Response.json(
+            return secureJson(
             {
                 success: false,
                 message: err.message
@@ -222,7 +219,7 @@ const worker = {
             );
 
         if (limited) return limited;
-        return Response.json(
+        return secureJson(
             {
                 success: true
             },
@@ -255,7 +252,7 @@ const worker = {
             env.JWT_SECRET
         );
 
-        return Response.json({
+        return secureJson({
             loggedIn: !!admin
         });
     }
@@ -283,7 +280,7 @@ const worker = {
             );
 
             if (!admin) {
-            return Response.json(
+            return secureJson(
                 {
                 success: false,
                 message: "Unauthorized"
@@ -300,13 +297,13 @@ const worker = {
             `)
             .all();
 
-            return Response.json({
+            return secureJson({
             success: true,
             messages: result.results
             });
 
         } catch (err) {
-            return Response.json(
+            return secureJson(
             {
                 success: false,
                 message: err.message
@@ -339,7 +336,7 @@ const worker = {
             );
 
             if (!admin) {
-                return Response.json(
+                return secureJson(
                     {
                         success: false,
                         message: "Unauthorized"
@@ -359,12 +356,12 @@ const worker = {
                 .bind(id)
                 .run();
 
-            return Response.json({
+            return secureJson({
                 success: true
             });
 
         } catch (err) {
-            return Response.json(
+            return secureJson(
                 {
                     success: false,
                     message: err.message
@@ -378,6 +375,7 @@ const worker = {
             url.pathname === "/api/chat-stream"  &&
             request.method === "POST"
         ){
+            try{ 
             const limited =
             await enforceRateLimit(
                 request,
@@ -393,15 +391,66 @@ const worker = {
                 !history ||
                 !Array.isArray(history) ||
                 history.length === 0
-                ) {
-                return Response.json(
+            ) {
+                return secureJson(
                     {
-                    success: false,
-                    message: "Invalid request body."
+                        success: false,
+                        message: "Invalid request body."
                     },
                     { status: 400 }
                 );
-                }
+            }
+            const latestMessage =
+                history[history.length - 1];
+
+            const latestText =
+                latestMessage?.parts?.[0]?.text ?? "";
+
+            // Guardrails run before Gemini so prompt injection attacks are blocked
+            // without consuming AI tokens.
+            const inputCheck =
+                checkInput(latestText);
+
+            if (!inputCheck.allowed) {
+
+                const encoder = new TextEncoder();
+
+                const stream = new ReadableStream({
+                    start(controller) {
+
+                        controller.enqueue(
+                            encoder.encode(
+                                `data: ${JSON.stringify({
+                                    candidates: [
+                                        {
+                                            content: {
+                                                parts: [
+                                                    {
+                                                        text: inputCheck.message
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                })}\n\n`
+                            )
+                        );
+
+                        controller.close();
+                    }
+                });
+
+                return secureResponse(
+                    stream,
+                    {
+                        headers: {
+                            "Content-Type": "text/event-stream",
+                            "Cache-Control": "no-cache"
+                        }
+                    }
+                );
+            }
+
             const response =
                 await generateReplyStream(
                     history,
@@ -410,10 +459,9 @@ const worker = {
             
 
             if (!response.ok) {
-                const errorText =
-                    await response.text();
+                const errorText = await response.text();
 
-                return Response.json(
+                return secureJson(
                     {
                         success: false,
                         message: errorText
@@ -424,7 +472,7 @@ const worker = {
                 );
             }
 
-            return new Response(
+            return secureResponse(
                 response.body,
                 {
                     headers: {
@@ -433,6 +481,18 @@ const worker = {
                     }
                 }
             );
+        }catch(err){
+            console.error("Chat route error:", err);
+            return secureJson(
+                {
+                    success: false,
+                    message: err.message
+                },
+                {
+                    status: 500
+                }
+            );
+            }
         }
         
     
@@ -442,7 +502,7 @@ const worker = {
         url.pathname === "/api/posts" &&
         request.method === "GET"
         ) {
-        return Response.json(posts);
+        return secureJson(posts);
         }
         
         // Get one post GET /api/posts/:slug slug is replaced with a var (stored in data/posts.js)
@@ -459,7 +519,7 @@ const worker = {
                 );
 
             if (!post) {
-                return Response.json(
+                return secureJson(
                     {
                         success: false,
                         message: "Post not found"
@@ -470,7 +530,7 @@ const worker = {
                 );
             }
 
-            return Response.json(post);
+            return secureJson(post);
         }
 
     if (url.pathname === "/api/github/repos" && request.method === "GET") {
@@ -486,26 +546,26 @@ const worker = {
 
         try {
             const repos = await getGithubRepos();
-            const response = Response.json({ success: true, repos });
+            const response = secureJson({ success: true, repos });
 
             // Store in cache for 5 minutes
-            const cacheResponse = Response.json(
+            const cacheResponse = secureJson(
                 { success: true, repos },
                 { headers: { "Cache-Control": "public, max-age=300" } }
             );
             await cache.put(cacheKey, cacheResponse);
 
-            return Response.json({ success: true, repos });
+            return secureJson({ success: true, repos });
 
         } catch (err) {
-            return Response.json(
+            return secureJson(
                 { success: false, error: err.message },
                 { status: 502 }
             );
         }
     }
 
-        return new Response("Not Found", {
+        return secureResponse("Not Found", {
             status: 404
         });
   }

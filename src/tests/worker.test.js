@@ -78,6 +78,11 @@ global.caches = {
     default: mockCache
 };
 
+// MOCK TURNSTILEEEEE
+jest.mock("../turnstile.js", () => ({
+    verifyTurnstile: jest.fn().mockResolvedValue(true)
+}));
+
 // ── Import worker after mocks are set up ──────────────────────
 const worker = require("../index.js");
 

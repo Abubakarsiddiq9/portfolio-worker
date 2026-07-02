@@ -3,6 +3,8 @@ const SECURITY_HEADERS = {
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "strict-origin-when-cross-origin",
     "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    // Content Security Policy reduces the impact of XSS by allowing the
+    // browser to load resources only from trusted origins.
     "Content-Security-Policy": [
         "default-src 'self'",
         "script-src 'self' https://challenges.cloudflare.com",
