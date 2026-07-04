@@ -10,7 +10,14 @@ const OUTPUT_BLOCK_MESSAGE =
 // to reveal hidden instructions or override the assistant's behavior.
 const BLOCKED_PATTERNS = [
     /ignore\s+(all\s+)?(previous|prior)\s+instructions?/i,
+    /forget (all )?(previous|prior) instructions/i,
+    /forget who you are/i,
+    /pretend you are/i,
+    /act as/i,
     /system\s+prompt/i,
+    /developer message/i,
+    /hidden instructions/i,
+    /internal prompt/i,
     /reveal\s+.*prompt/i,
     /show\s+.*prompt/i,
     /developer\s+message/i,
