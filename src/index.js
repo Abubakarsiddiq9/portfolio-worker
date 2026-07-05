@@ -593,6 +593,19 @@ const worker = {
         }
     }
 
+        const assetResponse = await env.ASSETS.fetch(request);
+
+        if (assetResponse.status !== 404) {
+            return secureResponse(
+                assetResponse.body,
+                {
+                    status: assetResponse.status,
+                    statusText: assetResponse.statusText,
+                    headers: assetResponse.headers
+                }
+            );
+        }
+
         return secureResponse("Not Found", {
             status: 404
         });
