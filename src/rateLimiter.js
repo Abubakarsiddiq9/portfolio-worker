@@ -7,18 +7,18 @@ export async function enforceRateLimit(
 ) {
     const ip =
         request.headers.get("CF-Connecting-IP") || 
-        "unknown"; 
+        "unknown"; //obt user's ip
 
     const id =
         env.RATE_LIMITER.idFromName( 
             `${route}:${ip}`
-        ); //That creates (or finds) the Durable Object for that IP.
+        ); //That creates (or finds) the Durable Object for that IP. like chat:123.45.67.89
 
     const stub =
         env.RATE_LIMITER.get(id); //gives us a connection to it(that got id).
 
     const response = await stub.fetch(
-        "https://ratelimiter/check",
+        "https://ratelimiter/check", //call do ,inside cloudflare.Enter RateLimiterDO.js
         {
             method: "POST",
             body: JSON.stringify({

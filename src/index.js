@@ -376,16 +376,16 @@ const worker = {
             request.method === "POST"
         ){
             try{ 
-            const limited =
-            await enforceRateLimit(
-                request,
-                env,
-                "chat",
-                20,
-                3600
-            );
+            // const limited =
+            // await enforceRateLimit(
+            //     request,
+            //     env,
+            //     "chat",
+            //     20,
+            //     3600
+            // );
 
-            if (limited) return limited;
+            // if (limited) return limited;
             const { history } = await request.json();
             if (
                 !history ||
@@ -458,19 +458,47 @@ const worker = {
                 );
             
 
-            if (!response.ok) {
-                const errorText = await response.text();
+                if (!response.ok) {
 
-                return secureJson(
-                    {
-                        success: false,
-                        message: errorText
-                    },
-                    {
-                        status: response.status
+                    const errorText = await response.text();
+                
+                    if (
+                        response.status === 429 &&
+                        errorText.includes("RESOURCE_EXHAUSTED")
+                    ) {
+                        return secureJson(
+                            {
+                                success: false,
+                                message: "GEMINI_QUOTA_EXCEEDED"
+                            },
+                            {
+                                status: 429
+                            }
+                        );
                     }
-                );
-            }
+                
+                    if (response.status === 503) {
+                        return secureJson(
+                            {
+                                success: false,
+                                message: "GEMINI_UNAVAILABLE"
+                            },
+                            {
+                                status: 503
+                            }
+                        );
+                    }
+                
+                    return secureJson(
+                        {
+                            success: false,
+                            message: errorText
+                        },
+                        {
+                            status: response.status
+                        }
+                    );
+                }
 
             return secureResponse(
                 response.body,

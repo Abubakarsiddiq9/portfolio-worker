@@ -53,15 +53,15 @@ const response = await fetch(
 );
 
 // gemini err ucomt-1 
-    // if (!response.ok) {
-    //     const clone = response.clone();
-    //     console.log(await clone.text());
-    // }
+    if (!response.ok) {
+        const clone = response.clone();
+        console.log(await clone.text());
+    }
 
 return response;
 // gemini err ucomt-2
-    // console.log("Gemini status:", response.status);
-    // console.log("Gemini ok:", response.ok);
+    console.log("Gemini status:", response.status);
+    console.log("Gemini ok:", response.ok);
     
     return response;
 }

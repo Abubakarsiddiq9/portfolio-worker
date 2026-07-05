@@ -7,11 +7,9 @@ export class RateLimiterDO {
 
     async fetch(request) {
 
-        const { limit, windowSeconds } =
-            await request.json();
+        const { limit, windowSeconds } = await request.json();
 
-        let count =
-            (await this.state.storage.get("count")) || 0;
+        let count = (await this.state.storage.get("count")) || 0; //Each Durable Object has its own private storage.
 
         if (count >= limit) {
 
@@ -24,7 +22,7 @@ export class RateLimiterDO {
 
         count++;
 
-        await this.state.storage.put(
+        await this.state.storage.put( //this write is atomic. No race conditions
             "count",
             count
         );

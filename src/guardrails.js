@@ -2,8 +2,6 @@
 const INPUT_BLOCK_MESSAGE =
     "I'm only able to answer questions about Abubakar's portfolio, projects, skills, and experience.";
 
-const OUTPUT_BLOCK_MESSAGE =
-    "I couldn't generate a safe response for that request.";
 
 // Common prompt-injection and jailbreak phrases.
 // These patterns target common prompt injection techniques that attempt
@@ -67,19 +65,3 @@ export function checkInput(text) {
     };
 }
 
-export function checkOutput(text) {
-
-    if (!text) {
-        return OUTPUT_BLOCK_MESSAGE;
-    }
-
-    // Prevent accidental system prompt leakage.
-    if (
-        /system\s+prompt/i.test(text) ||
-        /developer\s+message/i.test(text)
-    ) {
-        return OUTPUT_BLOCK_MESSAGE;
-    }
-
-    return text;
-}
