@@ -174,9 +174,10 @@ const worker = {
             }
             
 
-            const token = jwt.sign(
-            { role: "admin" },
-            env.JWT_SECRET,
+            // creating Header.Payload.Signature. header typ-jwt , payload -admin
+            const token = jwt.sign( //Payload This is the information stored inside the JWT.
+            { role: "admin" }, //"This logged-in user has the admin role."
+            env.JWT_SECRET, //It is only used by the server to create and verify JWTs.
             { expiresIn: "7d" }
             );
 
@@ -593,8 +594,8 @@ const worker = {
         }
     }
 
-        const assetResponse = await env.ASSETS.fetch(request);
-
+        const assetResponse = await env.ASSETS.fetch(request); //woker can access assests(FE pgs:index.html,prscript.js etc)
+        //now Every request first goes through your Worker. Only after that does the Worker fetch the actual HTML/CSS/JS from Cloudflare Assets.
         if (assetResponse.status !== 404) {
             return secureResponse(
                 assetResponse.body,
