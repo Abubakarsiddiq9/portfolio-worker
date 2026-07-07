@@ -3,6 +3,9 @@ export async function verifyTurnstile(
     request,
     env
 ) {
+    if (env.BYPASS_TURNSTILE === "true") {
+        return true;
+    }
     if (!token) {
         return false;
     }

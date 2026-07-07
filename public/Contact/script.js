@@ -2,6 +2,19 @@ const form = document.getElementById("contactForm");
 const sendBtn = document.getElementById("sendBtn");
 const btnText = document.getElementById("btnText");
 const loader = document.getElementById("loader");
+const messageInput = document.getElementById("message");
+const messageCounter = document.getElementById("messageCounter");
+
+messageInput.addEventListener("input", () => {
+
+    messageCounter.textContent =
+        `${messageInput.value.length} / 1200`;
+
+});
+
+// Initialize counter
+messageCounter.textContent =
+    `${messageInput.value.length} / 1200`;
 
 form.addEventListener("submit", async (e) => {
 

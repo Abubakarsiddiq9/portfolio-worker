@@ -26,21 +26,21 @@ export function validateContact({ name, email, message }) {
     }
 
     // Length validation
-    if (name.length > 100) {
+    if (name.length > 40) {
         return {
             valid: false,
             message: "Name must be 100 characters or fewer."
         };
     }
 
-    if (email.length > 254) {
+    if (email.length > 50) {
         return {
             valid: false,
             message: "Email is too long."
         };
     }
 
-    if (message.length > 2000) {
+    if (message.length > 1200) {
         return {
             valid: false,
             message: "Message must be 2000 characters or fewer."
