@@ -15,7 +15,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm install
@@ -31,6 +31,6 @@ jobs:
         
       - name: Run Playwright E2E tests
         run: npm run test:e2e
-        
+
       - name: Run chatbot mock evals
         run: npm run evals
