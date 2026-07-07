@@ -3,6 +3,7 @@ export async function verifyTurnstile(
     request,
     env
 ) {
+    console.log("BYPASS_TURNSTILE =", env.BYPASS_TURNSTILE);
     if (env.BYPASS_TURNSTILE === "true") {
         return true;
     }
