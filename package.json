@@ -18,6 +18,10 @@
     },
     "transformIgnorePatterns": [
       "node_modules/(?!(resend)/)"
+    ],
+    "roots": [
+      "<rootDir>/src/tests",
+      "<rootDir>/public/tests"
     ]
   },
   "babel": {

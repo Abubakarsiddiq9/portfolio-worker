@@ -102,7 +102,13 @@ const mockEnv = {
     RESEND_API_KEY: "mock-resend-key",
     EMAIL: "test@example.com",
     GEMINI_API_KEY: "mock-gemini-key",
-
+    ASSETS: {
+        fetch: jest.fn(async () =>
+            new Response("Not Found", {
+                status: 404
+            })
+        )
+    },
     RATE_LIMITER: {
         idFromName: jest.fn(() => "test-id"),
 
