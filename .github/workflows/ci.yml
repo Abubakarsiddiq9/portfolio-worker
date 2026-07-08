@@ -32,6 +32,12 @@ jobs:
       - name: Create .dev.vars for Playwright
         run: |
           echo "BYPASS_TURNSTILE=true" > .dev.vars
+
+      - name: Debug project files
+        run: |
+          pwd
+          ls -la
+          cat .dev.vars
       - name: Run Playwright E2E tests
         run: npm run test:e2e
         env:
