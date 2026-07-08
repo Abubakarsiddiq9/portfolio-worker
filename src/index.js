@@ -111,6 +111,20 @@ const worker = {
                 message
             } = validation.data; //These are the trimmed, validated values.So Resend and D1 will receive clean input.
 
+            if (env.BYPASS_TURNSTILE === "true") {
+                await env.portfolio_db
+                    .prepare(`
+                        INSERT INTO contacts(name,email,message)
+                        VALUES(?,?,?)
+                    `)
+                    .bind(name, email, message)
+                    .run();
+            
+                return secureJson({
+                    success: true
+                });
+            }
+
             const resend = new Resend(env.RESEND_API_KEY);
 
             await resend.emails.send({
