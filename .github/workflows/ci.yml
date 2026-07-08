@@ -35,16 +35,8 @@ jobs:
           BYPASS_TURNSTILE=true
           EOF
 
-      - name: Verify .dev.vars
-        run: |
-          echo "Current directory:"
-          pwd
-          echo ""
-          echo "Files:"
-          ls -la
-          echo ""
-          echo ".dev.vars contents:"
-          cat .dev.vars
+      - name: Apply D1 migrations
+        run: npx wrangler d1 migrations apply portfolio-db --local --yes
 
       - name: Run Playwright E2E tests
         run: npm run test:e2e

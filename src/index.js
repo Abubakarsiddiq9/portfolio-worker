@@ -70,14 +70,12 @@ const worker = {
 
             // // Always verify the Turnstile token on the server because attackers can
             // bypass frontend checks and call the API directly.
-            console.log("Reached Turnstile");
             const verified =
                 await verifyTurnstile(
                     turnstileToken,
                     request,
                     env
                 );
-            console.log("Verified =", verified);
             if (!verified) {
 
                 return secureJson(
@@ -148,7 +146,6 @@ const worker = {
             });
 
         } catch (err) {
-            console.error("CONTACT ERROR");
             console.error(err);
             console.error(err?.stack);
         
