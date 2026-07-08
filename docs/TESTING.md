@@ -224,3 +224,161 @@ Test 4
 Test 5
 
 - Fallback mode activates on 429 or 503 responses
+
+# Testing Strategy
+
+## Overview
+
+This project uses multiple layers of automated testing to ensure reliability before deployment.
+
+| Test Type | Tool | Purpose |
+|-----------|------|---------|
+| Unit Tests | Jest | Verify frontend and backend logic |
+| End-to-End Tests | Playwright | Simulate real user interactions |
+| AI Evaluation | Custom Evals | Verify chatbot responses |
+| Continuous Integration | GitHub Actions | Run all tests automatically on every Pull Request |
+
+---
+
+# Unit Tests
+
+## Frontend
+
+Location
+
+```
+public/tests/
+```
+
+Covers
+
+- Navigation
+- UI behavior
+- Form validation
+- Utility functions
+
+Run locally
+
+```bash
+npm test -- --testPathPattern=public/tests/frontend.test.js
+```
+
+---
+
+## Worker Tests
+
+Location
+
+```
+src/tests/
+```
+
+Covers
+
+- API endpoints
+- Route handlers
+- Validation
+- Error handling
+
+Run locally
+
+```bash
+npm test -- --testPathPattern=src/tests/worker.test.js
+```
+
+---
+
+# End-to-End Tests
+
+Framework
+
+Playwright
+
+Location
+
+```
+tests/
+```
+
+Current Scenarios
+
+- Contact form submission
+- Chatbot interaction
+- Admin authentication
+
+Run
+
+```bash
+npm run test:e2e
+```
+
+---
+
+# Chatbot Evaluation
+
+The chatbot evaluation suite validates generated responses against predefined expectations.
+
+Run
+
+```bash
+npm run evals
+```
+
+---
+
+# Continuous Integration
+
+Every Pull Request automatically executes:
+
+1. Install dependencies
+2. Run frontend Jest tests
+3. Run Worker Jest tests
+4. Apply D1 migrations
+5. Run Playwright tests
+6. Run chatbot evaluations
+
+If any step fails, the Pull Request cannot be merged.
+
+---
+
+# CI Workflow
+
+```
+Developer
+     │
+     ▼
+Push Branch
+     │
+     ▼
+GitHub Actions
+     │
+     ├── Unit Tests
+     ├── D1 Migration
+     ├── Playwright
+     └── Chatbot Evals
+     │
+     ▼
+Pass / Fail
+```
+
+---
+
+# Commands
+
+```bash
+npm test
+```
+
+Run Jest tests.
+
+```bash
+npm run test:e2e
+```
+
+Run Playwright tests.
+
+```bash
+npm run evals
+```
+
+Run chatbot evaluation suite.

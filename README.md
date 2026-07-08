@@ -27,6 +27,17 @@ A responsive full-stack portfolio website showcasing my projects, skills, journe
 
 * Jest
 
+## Testing
+
+### Unit Tests
+npm test
+
+### Playwright E2E
+npm run test:e2e
+
+### Chatbot Mock Evals
+npm run evals
+
 ### Deployment & DevOps
 
 * Cloudflare Workers
