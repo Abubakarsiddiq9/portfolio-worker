@@ -36,7 +36,7 @@ jobs:
           EOF
 
       - name: Apply D1 migrations
-        run: npx wrangler d1 migrations apply portfolio-db --local --yes
+        run: npx wrangler d1 migrations apply portfolio-db --local 
 
       - name: Run Playwright E2E tests
         run: npm run test:e2e
