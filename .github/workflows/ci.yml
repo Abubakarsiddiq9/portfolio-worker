@@ -28,7 +28,12 @@ jobs:
 
       - name: Run worker API tests
         run: npm test -- --testPathPattern=src/tests/worker.test.js
-        
+      - name: Debug working directory
+        run: |
+          pwd
+          ls -la
+          echo "------"
+          cat .dev.vars  
       - name: Create .dev.vars for Playwright
         run: |
           echo "BYPASS_TURNSTILE=true" > .dev.vars
