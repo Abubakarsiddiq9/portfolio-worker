@@ -49,9 +49,6 @@ test("user can submit the contact form", async ({ page }) => {
     await page.click("#sendBtn");
     const response = await responsePromise;
 
-    const body = await response.json();
-    console.log("STATUS:", response.status());
-    console.log("BODY:", body);
 
     expect(response.status()).toBe(200);
 

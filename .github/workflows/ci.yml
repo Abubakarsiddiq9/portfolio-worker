@@ -29,6 +29,9 @@ jobs:
       - name: Run worker API tests
         run: npm test -- --testPathPattern=src/tests/worker.test.js
         
+      - name: Create .dev.vars for Playwright
+        run: |
+          echo "BYPASS_TURNSTILE=true" > .dev.vars
       - name: Run Playwright E2E tests
         run: npm run test:e2e
         env:
