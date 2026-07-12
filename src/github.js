@@ -3,8 +3,16 @@ export async function getGithubRepos() {
             "https://api.github.com/users/Abubakarsiddiq9/repos",
             {
                 headers: {
-                    "User-Agent": //github requires user-agent for API req
-                        "Abubakar-Portfolio"
+                    "User-Agent": //to know which application is making the request.
+                        "Abubakar-Portfolio" //it tells GitHub:"This request is coming from an application named Abubakar-Portfolio."
+                        //Imagine GitHub receives 10 million requests per minute.
+                        // Without a User-Agent, every request would look anonymous.
+                        // GitHub wants to know:
+                        // Which application made the request?
+                        // If something is abusing the API, which application is responsible?
+                        // If there's a bug, who should they contact?
+
+                        // So they require every request to identify itself.
                 }
             }
         );

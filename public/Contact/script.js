@@ -2,6 +2,19 @@ const form = document.getElementById("contactForm");
 const sendBtn = document.getElementById("sendBtn");
 const btnText = document.getElementById("btnText");
 const loader = document.getElementById("loader");
+const messageInput = document.getElementById("message");
+const messageCounter = document.getElementById("messageCounter");
+
+messageInput.addEventListener("input", () => {
+
+    messageCounter.textContent =
+        `${messageInput.value.length} / 1200`;
+
+});
+
+// Initialize counter
+messageCounter.textContent =
+    `${messageInput.value.length} / 1200`;
 
 form.addEventListener("submit", async (e) => {
 
@@ -11,13 +24,25 @@ form.addEventListener("submit", async (e) => {
     btnText.style.display = "none";
     sendBtn.disabled = true;
 
-    const data = {
-        name: document.getElementById("name").value,
-        email: document.getElementById("email").value,
-        message: document.getElementById("message").value
-    };
-
     try {
+
+        if (typeof turnstile === "undefined") {
+            throw new Error("Turnstile failed to load.");
+        }
+
+        const turnstileToken = turnstile.getResponse();
+
+        if (!turnstileToken) {
+            alert("Please complete the verification.");
+            return;
+        }
+
+        const data = {
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            message: document.getElementById("message").value,
+            turnstileToken
+        };
 
         const response = await fetch(
             "/api/contact",
@@ -33,13 +58,25 @@ form.addEventListener("submit", async (e) => {
         const result = await response.json();
 
         if (result.success) {
+
             alert("Message sent successfully!");
+
             form.reset();
+
+            // Reset Turnstile so it can be used again
+            turnstile.reset();
+
+        } else {
+
+            alert(result.message);
+
         }
 
     } catch (error) {
 
-        alert("Failed to send message");
+        console.error(error);
+
+        alert("Failed to send message.");
 
     } finally {
 

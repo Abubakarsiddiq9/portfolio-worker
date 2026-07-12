@@ -42,6 +42,21 @@ Responsible for:
 - Storing blog content
 - Providing data to /api/posts endpoints
 
+Cloudflare Cache API
+
+Responsible for
+
+• Caching GitHub repositories
+• Reducing GitHub API calls
+• Improving Projects page load time
+
+Google Gemini API
+
+Responsible for
+
+• Streaming chatbot responses
+• Answering portfolio questions
+
 ### GitHub API
 
 External service:
@@ -65,4 +80,4 @@ Responsible for:
 
 See diagram below.
 
-![Architecture](docs/Hldiag.drawio.png)
+![Architecture](seq_imgs/Hld_gp.png)

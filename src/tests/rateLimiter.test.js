@@ -1,107 +1,79 @@
-import { checkRateLimit } from "../rateLimiter.js";
+import { enforceRateLimit } from "../rateLimiter.js";
 
-describe(
-  "rate limiter",
-  () => {
-   
-    test(
-      "allows under limit",
-      async () => {
+describe("rate limiter", () => {
 
-        const store = {};
+    test("allows under limit", async () => {
 
-        const env = {
-          RATE_LIMITS: {
-            get: jest.fn(
-              async key =>
-                store[key]
-            ),
-            put: jest.fn(
-              async (
-                key,
-                value
-              ) => {
-                store[key] =
-                  value;
-              }
-            )
-          }
-        };
-
-        const result =
-          await checkRateLimit(
-            env,
-            "chat:test",
-            20,
-            3600
-          );
-
-        expect(
-          result.allowed
-        ).toBe(true);
-      }
-    );
-  }
-);
-
-
-test(
- "blocks after limit",
- async () => {
-
-  const env = {
-   RATE_LIMITS: {
-    get: jest.fn(
-      async () => "20"
-    ),
-    put: jest.fn()
-   }
-  };
-
-  const result =
-   await checkRateLimit(
-    env,
-    "chat:test",
-    20,
-    3600
-   );
-
-  expect(
-   result.allowed
-  ).toBe(false);
- }
-);
-
- test(
-    "increments count",
-    async () => {
-
-        const store = {};
-
-        const env = {
-        RATE_LIMITS: {
-            get: jest.fn(
-            async key => store[key]
-            ),
-            put: jest.fn(
-            async (key, value) => {
-                store[key] = value;
+        const request = new Request(
+            "https://example.com/api/chat",
+            {
+                headers: {
+                    "CF-Connecting-IP": "1.2.3.4"
+                }
             }
-            )
-        }
-        };
-
-        await checkRateLimit(
-        env,
-        "chat:test",
-        20,
-        3600
         );
 
-        expect(
-        store["chat:test"]
-        ).toBe("1");
-    }
-    );
+        const env = {
+            RATE_LIMITER: {
+                idFromName: jest.fn(() => "id"),
+                get: jest.fn(() => ({
+                    fetch: jest.fn(async () =>
+                        new Response(
+                            JSON.stringify({
+                                allowed: true
+                            })
+                        )
+                    )
+                }))
+            }
+        };
 
-        
+        const result = await enforceRateLimit(
+            request,
+            env,
+            "chat",
+            20,
+            3600
+        );
+
+        expect(result).toBeNull();
+    });
+
+    test("blocks after limit", async () => {
+
+        const request = new Request(
+            "https://example.com/api/chat",
+            {
+                headers: {
+                    "CF-Connecting-IP": "1.2.3.4"
+                }
+            }
+        );
+
+        const env = {
+            RATE_LIMITER: {
+                idFromName: jest.fn(() => "id"),
+                get: jest.fn(() => ({
+                    fetch: jest.fn(async () =>
+                        new Response(
+                            JSON.stringify({
+                                allowed: false
+                            })
+                        )
+                    )
+                }))
+            }
+        };
+
+        const result = await enforceRateLimit(
+            request,
+            env,
+            "chat",
+            20,
+            3600
+        );
+
+        expect(result.status).toBe(429);
+    });
+
+});

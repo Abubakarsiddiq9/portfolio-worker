@@ -15,13 +15,31 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install dependencies
         run: npm install
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
 
       - name: Run frontend tests
         run: npm test -- --testPathPattern=public/tests/frontend.test.js
 
       - name: Run worker API tests
         run: npm test -- --testPathPattern=src/tests/worker.test.js
+
+      - name: Create .dev.vars for Playwright
+        run: |
+          cat > .dev.vars <<EOF
+          BYPASS_TURNSTILE=true
+          EOF
+
+      - name: Apply D1 migrations
+        run: npx wrangler d1 migrations apply portfolio-db --local 
+
+      - name: Run Playwright E2E tests
+        run: npm run test:e2e
+
+      - name: Run chatbot mock evals
+        run: npm run evals

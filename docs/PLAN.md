@@ -140,7 +140,7 @@ All dynamic routes are handled by a single Cloudflare Worker (`src/index.js`):
 
 * `/api/test` — health check endpoint
 * `/api/contact` — contact form, sends email via Resend
-* `/api/chat` — AI chatbot, calls Google Gemini API
+* `/api/chat-stream` — AI chatbot, calls Google Gemini API
 
 ### Secrets
 
@@ -160,17 +160,21 @@ The contact form is powered by a Cloudflare Worker.
 
 Workflow:
 
-1. User fills out the contact form.
-2. The frontend sends a POST request to `/api/contact`.
-3. The Worker validates the submitted data.
-4. Resend sends the email securely to my inbox.
-5. The Worker returns a JSON response indicating success or failure.
+1. User submits a message.
+2. Frontend appends it to the conversation history.
+3. Frontend sends the conversation to /api/chat-stream.
+4. Cloudflare Worker validates the request.
+5. Worker forwards it to the Gemini Streaming API.
+6. Gemini streams partial responses.
+7. Worker forwards each chunk to the browser.
+8. Browser updates the chat bubble in real time.
+9. If Gemini fails or quota is exceeded, the chatbot switches to predefined responses.
 
 ---
 
 ## Chatbot Architecture
 
-The chatbot is powered by the Google Gemini API (`gemini-2.5-flash-lite`).
+The chatbot is powered by the Google Gemini API (`gemini-2.5-flash`).
 
 Workflow:
 
@@ -183,7 +187,7 @@ Rate limiting: 20 messages per user per hour (enforced server-side via Cloudflar
 
 Fallback mode: If the AI is unavailable or the limit is reached, the frontend switches to keyword-based predefined responses automatically.
 
-Message persistence: Chat messages are saved in `sessionStorage` (survives page navigation, clears on tab close). Rate limit count is saved in `localStorage` (persists across sessions for the full hour window).
+Message persistence: Chat messages are saved in `sessionStorage` (survives page navigation, clears on tab close). Rate limiting is enforced entirely on the server using Cloudflare KV. The browser only stores conversation history in sessionStorage for the current browsing session. (persists across sessions for the full hour window).
 
 ---
 
@@ -193,9 +197,17 @@ Message persistence: Chat messages are saved in `sessionStorage` (survives page 
 |---|---|---|
 | `/api/test` | GET | Health check |
 | `/api/contact` | POST | Sends contact form email via Resend |
-| `/api/chat` | POST | AI chatbot via Gemini API |
+| `/api/chat-stream` | POST | AI chatbot via Gemini API |
 
 ---
+### src/chatbot.js
+
+Responsibilities
+
+• Builds Gemini request payload
+• Stores the system prompt
+• Calls Gemini Streaming API
+• Returns the streaming response to the Worker
 
 ## Testing & CI/CD
 

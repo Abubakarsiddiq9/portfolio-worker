@@ -3,31 +3,11 @@ import jwt from "jsonwebtoken";
 import { posts } from "./data/posts";
 import { enforceRateLimit } from "./rateLimiter.js";
 import { getGithubRepos } from "./github.js";
-
-const GEMINI_MODEL = "gemini-2.5-flash-lite";
-
-const SYSTEM_PROMPT = `You are a friendly portfolio assistant for Mohammed Abubakar Siddiq.
-Answer questions about him based ONLY on the facts below. Keep answers concise (2-4 sentences max).
-If something is not covered below, say you don't have that info yet and suggest visiting the relevant page.
-Never make up facts. Respond in the same language the user writes in.
-If asked whether you are AI, Gemini-powered, or how you work: confirm you are an AI assistant powered by Google Gemini, and that Abubakar built this chatbot by integrating the Gemini API into his portfolio — which itself is a demonstration of his web development skills.
-
-FACTS ABOUT ABUBAKAR:
-- Full name: Mohammed Abubakar Siddiq
-- Age: 18 years old
-- Location: Khammam, Telangana, India
-- Currently pursuing BS in Data Science at IIT Madras 
-- Schooling: 10th at Oxford School Khammam (GPA 9.2/10), Intermediate at Sri Chaitanya Junior College (92.3%)
-- Started coding at age 13 during COVID-19 lockdown, first program was "Hello World" in C
-- Skills / Tech stack: HTML, CSS, JavaScript, Python, Node.js, Express.js, PostgreSQL, Git, GitHub, Figma, VS Code
-- Projects: portfolio website, calculator, clock app, todo app, Islamic learning platform
-- Email: abubakarsiddiqmohiuddin@gmail.com
-- WhatsApp: +91 8121104202
-- GitHub: github.com/Abubakarsiddiq9
-- Goals: Become a skilled Software Engineer, build innovative scalable software, interested in intersection of data science and web development
-- Portfolio pages: Home, Projects, Journey, Blogs, Contact`;
-
-
+import {  generateReplyStream } from "./chatbot.js";
+import { verifyTurnstile } from "./turnstile.js";
+import { validateContact } from "./validation.js";
+import { secureJson, secureResponse } from "./securityHeaders.js";
+import { checkInput } from "./guardrails.js";
 
 function verifyAdmin(request, jwtSecret) {
   const cookieHeader = request.headers.get("Cookie");
@@ -61,7 +41,7 @@ const worker = {
 
     // Test route
     if (url.pathname === "/api/test") {
-      return Response.json({
+      return secureJson({
         success: true,
         message: "Worker API is working"
       });
@@ -82,18 +62,67 @@ const worker = {
                     3600
                 );
 
-                if (limited) return limited;
-            const { name, email, message } = await request.json();
+            if (limited) return limited;
+            
+            const body = await request.json();
 
-            if (!name || !email || !message) {
-            return Response.json(
-                {
-                success: false,
-                message: "All fields are required"
-                },
-                { status: 400 }
-            );
+            const { turnstileToken } = body;
+
+            // // Always verify the Turnstile token on the server because attackers can
+            // bypass frontend checks and call the API directly.
+            const verified =
+                await verifyTurnstile(
+                    turnstileToken,
+                    request,
+                    env
+                );
+            if (!verified) {
+
+                return secureJson(
+                    {
+                        success: false,
+                        message:
+                            "Turnstile verification failed."
+                    },
+                    {
+                        status: 403
+                    }
+                );
             }
+
+            const validation =
+                validateContact(body);
+
+            if (!validation.valid) {
+                return secureJson(
+                    {
+                        success: false,
+                        message: validation.message
+                    },
+                    { status: 400 }
+                );
+            }
+
+            const {
+                name,
+                email,
+                message
+            } = validation.data; //These are the trimmed, validated values.So Resend and D1 will receive clean input.
+
+            if (env.BYPASS_TURNSTILE === "true") {
+                await env.portfolio_db
+                    .prepare(`
+                        INSERT INTO contacts(name,email,message)
+                        VALUES(?,?,?)
+                    `)
+                    .bind(name, email, message)
+                    .run();
+            
+                return secureJson({
+                    success: true
+                });
+            }
+
             const resend = new Resend(env.RESEND_API_KEY);
 
             await resend.emails.send({
@@ -109,20 +138,23 @@ const worker = {
                     INSERT INTO contacts (name, email, message)
                     VALUES (?, ?, ?)
                 `)
-                .bind(name, email, message) 
+                .bind(name, email, message)  //This protects against SQL Injection. as ! USING `INSERT INTO contacts VALUES ('${name}')`
                 .run();
 
-            return Response.json({
+            return secureJson({
             success: true
             });
 
         } catch (err) {
-            return Response.json(
-            {
-                success: false,
-                message: err.message
-            },
-            { status: 500 }
+            console.error(err);
+            console.error(err?.stack);
+        
+            return secureJson(
+                {
+                    success: false,
+                    message: err.message,
+                },
+                { status: 500 }
             );
         }
         }
@@ -140,15 +172,15 @@ const worker = {
                     env,
                     "login",
                     5,
-                    900
+                    960
                 );
 
-                if (limited) return limited;
+            if (limited) return limited;
 
             const { password } = await request.json();
 
             if (password !== env.ADMIN_PASSWORD) {
-            return Response.json(
+            return secureJson(
                 {
                 success: false,
                 message: "Invalid password"
@@ -158,13 +190,14 @@ const worker = {
             }
             
 
-            const token = jwt.sign(
-            { role: "admin" },
-            env.JWT_SECRET,
+            // creating Header.Payload.Signature. header typ-jwt , payload -admin
+            const token = jwt.sign( //Payload This is the information stored inside the JWT.
+            { role: "admin" }, //"This logged-in user has the admin role."
+            env.JWT_SECRET, //It is only used by the server to create and verify JWTs.
             { expiresIn: "7d" }
             );
 
-            return Response.json(
+            return secureJson(
             {
                 success: true
             },
@@ -176,7 +209,7 @@ const worker = {
             }
             );
         } catch (err) {
-            return Response.json(
+            return secureJson(
             {
                 success: false,
                 message: err.message
@@ -202,8 +235,8 @@ const worker = {
                 3600
             );
 
-            if (limited) return limited;
-        return Response.json(
+        if (limited) return limited;
+        return secureJson(
             {
                 success: true
             },
@@ -230,13 +263,13 @@ const worker = {
                 60
             );
 
-            if (limited) return limited;
+        if (limited) return limited;
         const admin = verifyAdmin(
             request,
             env.JWT_SECRET
         );
 
-        return Response.json({
+        return secureJson({
             loggedIn: !!admin
         });
     }
@@ -257,14 +290,14 @@ const worker = {
                     60
                 );
 
-                if (limited) return limited;
+            if (limited) return limited;
             const admin = verifyAdmin(
             request,
             env.JWT_SECRET
             );
 
             if (!admin) {
-            return Response.json(
+            return secureJson(
                 {
                 success: false,
                 message: "Unauthorized"
@@ -281,13 +314,13 @@ const worker = {
             `)
             .all();
 
-            return Response.json({
+            return secureJson({
             success: true,
             messages: result.results
             });
 
         } catch (err) {
-            return Response.json(
+            return secureJson(
             {
                 success: false,
                 message: err.message
@@ -312,7 +345,7 @@ const worker = {
                     60
                 );
 
-                if (limited) return limited;
+            if (limited) return limited;
 
             const admin = verifyAdmin(
                 request,
@@ -320,7 +353,7 @@ const worker = {
             );
 
             if (!admin) {
-                return Response.json(
+                return secureJson(
                     {
                         success: false,
                         message: "Unauthorized"
@@ -340,12 +373,12 @@ const worker = {
                 .bind(id)
                 .run();
 
-            return Response.json({
+            return secureJson({
                 success: true
             });
 
         } catch (err) {
-            return Response.json(
+            return secureJson(
                 {
                     success: false,
                     message: err.message
@@ -355,86 +388,158 @@ const worker = {
         }
     }
 
-    if (
-    url.pathname === "/api/chat" &&
-    request.method === "POST"
-    ) {
-    try {
-        // rate limit function
-        const limited =
-            await enforceRateLimit(
-                request,
-                env,
-                "chat",
-                20,
-                3600
-            );
-
-            if (limited) return limited;
-
-        const { history } = await request.json();
-
         if (
-        !history ||
-        !Array.isArray(history) ||
-        history.length === 0
-        ) {
-        return Response.json(
-            {
-            success: false,
-            message: "Invalid request body."
-            },
-            { status: 400 }
-        );
-        }
+            url.pathname === "/api/chat-stream"  &&
+            request.method === "POST"
+        ){
+            try{ 
+            // const limited =
+            // await enforceRateLimit(
+            //     request,
+            //     env,
+            //     "chat",
+            //     20,
+            //     3600
+            // );
 
-        const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${env.GEMINI_API_KEY}`,
-            {
-                method: "POST",
-                headers: {
-                "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                system_instruction: {
-                    parts: [{ text: SYSTEM_PROMPT }]
-                },
-                contents: history
-                })
+            // if (limited) return limited;
+            const { history } = await request.json();
+            if (
+                !history ||
+                !Array.isArray(history) ||
+                history.length === 0
+            ) {
+                return secureJson(
+                    {
+                        success: false,
+                        message: "Invalid request body."
+                    },
+                    { status: 400 }
+                );
             }
-            );
+            const latestMessage =
+                history[history.length - 1];
 
-            if (!response.ok) {
-            return Response.json(
+            const latestText =
+                latestMessage?.parts?.[0]?.text ?? "";
+
+            // Guardrails run before Gemini so prompt injection attacks are blocked
+            // without consuming AI tokens.
+            const inputCheck =
+                checkInput(latestText);
+
+            if (!inputCheck.allowed) {
+
+                const encoder = new TextEncoder();
+
+                const stream = new ReadableStream({
+                    start(controller) {
+
+                        controller.enqueue(
+                            encoder.encode(
+                                `data: ${JSON.stringify({
+                                    candidates: [
+                                        {
+                                            content: {
+                                                parts: [
+                                                    {
+                                                        text: inputCheck.message
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                })}\n\n`
+                            )
+                        );
+
+                        controller.close();
+                    }
+                });
+
+                return secureResponse(
+                    stream,
+                    {
+                        headers: {
+                            "Content-Type": "text/event-stream",
+                            "Cache-Control": "no-cache"
+                        }
+                    }
+                );
+            }
+
+            const response =
+                await generateReplyStream(
+                    history,
+                    env
+                );
+            
+
+                if (!response.ok) {
+
+                    const errorText = await response.text();
+                
+                    if (
+                        response.status === 429 &&
+                        errorText.includes("RESOURCE_EXHAUSTED")
+                    ) {
+                        return secureJson(
+                            {
+                                success: false,
+                                message: "GEMINI_QUOTA_EXCEEDED"
+                            },
+                            {
+                                status: 429
+                            }
+                        );
+                    }
+                
+                    if (response.status === 503) {
+                        return secureJson(
+                            {
+                                success: false,
+                                message: "GEMINI_UNAVAILABLE"
+                            },
+                            {
+                                status: 503
+                            }
+                        );
+                    }
+                
+                    return secureJson(
+                        {
+                            success: false,
+                            message: errorText
+                        },
+                        {
+                            status: response.status
+                        }
+                    );
+                }
+
+            return secureResponse(
+                response.body,
                 {
-                success: false,
-                message: "AI service error."
+                    headers: {
+                        "Content-Type": "text/event-stream",
+                        "Cache-Control": "no-cache"
+                    }
+                }
+            );
+        }catch(err){
+            console.error("Chat route error:", err);
+            return secureJson(
+                {
+                    success: false,
+                    message: err.message
                 },
-                { status: 502 }
+                {
+                    status: 500
+                }
             );
             }
-
-            const data = await response.json();
-
-            const reply =
-            data?.candidates?.[0]?.content?.parts?.[0]?.text ||
-            "Sorry, I didn't get a response.";
-
-            return Response.json({
-            success: true,
-            reply
-            });
-
-        } catch (err) {
-            return Response.json(
-            {
-                success: false,
-                message: err.message
-            },
-            { status: 500 }
-            );
         }
-        }
+        
     
         // Get all posts
 
@@ -442,7 +547,7 @@ const worker = {
         url.pathname === "/api/posts" &&
         request.method === "GET"
         ) {
-        return Response.json(posts);
+        return secureJson(posts);
         }
         
         // Get one post GET /api/posts/:slug slug is replaced with a var (stored in data/posts.js)
@@ -459,7 +564,7 @@ const worker = {
                 );
 
             if (!post) {
-                return Response.json(
+                return secureJson(
                     {
                         success: false,
                         message: "Post not found"
@@ -470,7 +575,7 @@ const worker = {
                 );
             }
 
-            return Response.json(post);
+            return secureJson(post);
         }
 
     if (url.pathname === "/api/github/repos" && request.method === "GET") {
@@ -486,30 +591,49 @@ const worker = {
 
         try {
             const repos = await getGithubRepos();
-            const response = Response.json({ success: true, repos });
+            const response = secureJson({ success: true, repos });
 
             // Store in cache for 5 minutes
-            const cacheResponse = Response.json(
+            const cacheResponse = secureJson(
                 { success: true, repos },
                 { headers: { "Cache-Control": "public, max-age=300" } }
             );
             await cache.put(cacheKey, cacheResponse);
 
-            return Response.json({ success: true, repos });
+            return secureJson({ success: true, repos });
 
         } catch (err) {
-            return Response.json(
+            return secureJson(
                 { success: false, error: err.message },
                 { status: 502 }
             );
         }
     }
 
-        return new Response("Not Found", {
+        const assetResponse = await env.ASSETS.fetch(request); //woker can access assests(FE pgs:index.html,prscript.js etc)
+        //now Every request first goes through your Worker. Only after that does the Worker fetch the actual HTML/CSS/JS from Cloudflare Assets.
+        if (assetResponse.status !== 404) {
+            return secureResponse(
+                assetResponse.body,
+                {
+                    status: assetResponse.status,
+                    statusText: assetResponse.statusText,
+                    headers: assetResponse.headers
+                }
+            );
+        }
+
+        return secureResponse("Not Found", {
             status: 404
         });
   }
 };
+export { RateLimiterDO } from "./RateLimiterDO.js";
 export default worker;
 // Allows Jest (CommonJS) to import this file
 if (typeof module !== "undefined") module.exports = { default: worker };
+// The cleaner long-term solution would be to migrate the Jest tests to native ES Modules and remove the compatibility export, but that requires updating the Jest configuration as well. Since the current implementation is functional and all tests pass, I kept the compatibility layer for now.
+// export default → ES Module syntax.
+// module.exports → CommonJS syntax.
+// Having both in the same file causes Wrangler to warn that CommonJS is being used inside an ES Module.
+// It's a warning, not an error. The Worker still builds and runs correctly.
