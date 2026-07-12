@@ -26,19 +26,13 @@ test("user can submit the contact form", async ({ page }) => {
     await page.setExtraHTTPHeaders({
         "CF-Connecting-IP": "203.0.113.10"
     });
-    await page.goto("/Contact/contactpg.html");
+    await page.goto("/Contact/contactpg.html"); //Equivalent to typing "http://localhost:8787/Contact/contactpg.html" in CHROMEEEE
 
     await page.fill("#name", "Playwright Test");
 
-    await page.fill(
-        "#email",
-        "playwright@example.com"
-    );
+    await page.fill("#email", "playwright@example.com");
 
-    await page.fill(
-        "#message",
-        "This is an automated E2E test."
-    );
+    await page.fill("#message","This is an automated E2E test.");
 
     const responsePromise = page.waitForResponse(
         response =>

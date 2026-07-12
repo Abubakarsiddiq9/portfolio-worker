@@ -1,6 +1,6 @@
 export async function verifyTurnstile(
     token,
-    request,
+    request, //request is the HTTP request sent by the browser. it contains like -> url,method(get/post etc),headers,body,cookies
     env
 ) {
     if (env.BYPASS_TURNSTILE === "true") {
